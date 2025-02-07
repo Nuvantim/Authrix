@@ -1,0 +1,37 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: go-app
+    container_name: golang-app
+    restart: always
+    ports:
+      - "127.0.0.1:7373:7373"
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      - db
+    networks:
+      - golang-network
+
+  db:
+    image: mariadb
+    container_name: golang-db
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: akuWijaya321
+      MARIADB_DATABASE: api_store
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mariadb
+    networks:
+      - golang-network
+
+volumes:
+  mysql-data:
+
+networks:
+  golang-network:
+    driver: bridge
