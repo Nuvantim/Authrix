@@ -8,7 +8,7 @@ import (
 )
 
 type ( // declare type models User & UserTemps
-	User     = models.User
+	User = models.User
 )
 
 type UserRequest struct { //struct update Request
@@ -30,7 +30,7 @@ func GetProfile(c *fiber.Ctx) error {
 	user := service.FindAccount(userID)
 
 	return c.Status(200).JSON(fiber.Map{
-		"user":      user,
+		"user": user,
 	})
 }
 
@@ -90,10 +90,10 @@ func UpdateAccount(c *fiber.Ctx) error {
 	}
 
 	users := service.UpdateAccount(user, user_id)
-	
+
 	// Make return interface
 	return c.Status(200).JSON(fiber.Map{
-		"user":      users,
+		"user": users,
 	})
 }
 

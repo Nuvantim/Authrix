@@ -15,6 +15,13 @@ func Setup(app *fiber.App) {
 	//protected
 	app.Use(middleware.Setup())
 
+	// Permission Route
+	app.Get("/permission",handler.GetPermission)
+	app.Get("/permission/:id",handler.FindPermission)
+	app.Post("/permission/store",handler.CreatePermission)
+	app.Put("/permission/:id",handler.UpdatePermission)
+	app.Delete("/permission/:id",handler.DeletePermission)
+
 	// User Route
 	app.Get("/account/profile", handler.GetProfile)
 	app.Put("/account/update", handler.UpdateAccount)

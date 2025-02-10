@@ -7,7 +7,7 @@ import (
 )
 
 type ( // declare type models User & UserTemps
-	User     = models.User
+	User = models.User
 )
 
 func CheckEmail(email string) bool {
