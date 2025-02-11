@@ -1,35 +1,63 @@
-//role service
+// role service
 package service
-import(
-    "api/internal/models"
-    "api/internal/database"
+
+import (
+	"api/internal/database"
+	"api/internal/domain/models"
 )
-type(
-    var Role = models.Role
+
+type (
+	Role = models.Role
 )
-func GetRole()[]Role{
-    var role []Role
-    database.DB.Find(&role)
-    return role
+
+func GetRole() []Role {
+	var role []Role
+	database.DB.Find(&role)
+	return role
 }
-func CreateRole()Role{}
-func FindRole(id uint)Role{
-    var role Role
-    database.DB.Preload("Permission").Take(&role,id)
-    return role
+func CreateRole(name string, permissionID []uint) Role {
+	var permissions []Permission
+	database.DB.Where("id IN ?", permissionID).Find(&permissions)
+	role := Role{
+		Name:        name,
+		Permissions: permissions,
+	}
+	database.DB.Create(&role)
+	roles := FindRole(role.ID)
+	return roles
+
 }
-func UpdateRole()Role{}
-func DeleteRole() error{
-var role models.Role
-    if err := database.DB.Take(&role, id).Error; err != nil {
-        return err
-    }
+func FindRole(id uint) Role {
+	var role Role
+	database.DB.Preload("Permissions").Take(&role, id)
+	return role
+}
+func UpdateRole(id uint, name string, permissionID []uint) Role {
+	var role Role
+	database.DB.Take(&role, id)
 
-    // Hapus relasi dari pivot table
-    database.DB.Model(&role).Association("Permissions").Clear()
+	var permission []Permission
+	database.DB.Where("id IN ?", permissionID).Find(&permission)
 
-    // Hapus role dari database
-    database.DB.Delete(&role)
+	role.Name = name
+	database.DB.Save(&role)
 
-    return nil
+	database.DB.Model(&role).Association("Permissions").Replace(&permission)
+	roles := FindRole(role.ID)
+	return roles
+}
+
+func DeleteRole(id uint) error {
+	var role models.Role
+	if err := database.DB.Take(&role, id).Error; err != nil {
+		return err
+	}
+
+	// Hapus relasi dari pivot table
+	database.DB.Model(&role).Association("Permissions").Clear()
+
+	// Hapus role dari database
+	database.DB.Delete(&role)
+
+	return nil
 }

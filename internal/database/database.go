@@ -59,6 +59,8 @@ func Setup() {
 		&models.User{},
 		&models.Product{},
 		&models.Category{},
+		&models.Role{},
+		&models.Permission{},
 	)
 	if err != nil {
 		log.Fatal("AutoMigrate failed: ", err)
