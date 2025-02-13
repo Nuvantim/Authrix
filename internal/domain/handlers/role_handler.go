@@ -1,13 +1,13 @@
 package handler
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"api/internal/domain/service"
 	"api/pkg/utils"
+	"github.com/gofiber/fiber/v2"
 )
 
 // struct request role
-type request struct {
+type role_permission struct {
 	Name         string `json:"name" validate:"required"`
 	PermissionID []uint `json:"permission_id"`
 }
@@ -31,7 +31,7 @@ func GetRole(c *fiber.Ctx) error {
 HANDLER FIND ROLE
 */
 func FindRole(c *fiber.Ctx) error {
-	id,_ := c.ParamsInt("id")
+	id, _ := c.ParamsInt("id")
 	role := service.FindRole(uint(id))
 	if role.ID == 0 {
 		return c.Status(404).JSON(fiber.Map{
@@ -45,12 +45,15 @@ func FindRole(c *fiber.Ctx) error {
 HANDLER CREATE ROLE
 */
 func CreateRole(c *fiber.Ctx) error {
-	var req request
+	var req role_permission
+
+	// bind body request
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"message": "Invalid body request",
 		})
 	}
+	// validate data
 	if err := utils.Validator(req); err != nil {
 		return c.Status(422).JSON(fiber.Map{
 			"error": err.Error(),
@@ -65,15 +68,15 @@ func CreateRole(c *fiber.Ctx) error {
 HANDLER UPDATE ROLE
 */
 func UpdateRole(c *fiber.Ctx) error {
-	var req request
-	id,_ := c.ParamsInt("id")
-
+	var req role_permission
+	id, _ := c.ParamsInt("id")
+	// bind body request
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"message": "Invalid Body Request",
 		})
 	}
-
+	// validate data
 	if err := utils.Validator(req); err != nil {
 		return c.Status(422).JSON(fiber.Map{
 			"error": err.Error(),
@@ -87,7 +90,7 @@ func UpdateRole(c *fiber.Ctx) error {
 HANDLER DELETE ROLE
 */
 func DeleteRole(c *fiber.Ctx) error {
-	id,_ := c.ParamsInt("id")
+	id, _ := c.ParamsInt("id")
 	if err := service.DeleteRole(uint(id)); err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"error": err,

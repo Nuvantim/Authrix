@@ -48,15 +48,15 @@ func UpdateRole(id uint, name string, permissionID []uint) Role {
 }
 
 func DeleteRole(id uint) error {
-	var role models.Role
+	var role Role
 	if err := database.DB.Take(&role, id).Error; err != nil {
 		return err
 	}
 
-	// Hapus relasi dari pivot table
+	// Delete relation permission from pivot table
 	database.DB.Model(&role).Association("Permissions").Clear()
 
-	// Hapus role dari database
+	// Delete role from table
 	database.DB.Delete(&role)
 
 	return nil

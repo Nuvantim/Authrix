@@ -20,7 +20,7 @@ func CreatePermission(permission Permission) Permission {
 }
 func FindPermission(id uint) Permission {
 	var permission Permission
-	database.DB.Take(&permission,id )
+	database.DB.Take(&permission, id)
 	return permission
 }
 func UpdatePermission(id uint, permissions Permission) Permission {
@@ -39,5 +39,5 @@ func DeletePermission(id uint) (string, error) {
 		return "", err
 	}
 	database.DB.Delete(&permission)
-	return "Permission success deleted",nil
+	return "Permission success deleted", nil
 }
