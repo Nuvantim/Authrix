@@ -6,8 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type user_role struct {
-	UserID uint   `json:"user_id" validate:"required"`
+type UserRole struct {
 	RoleID []uint `json:"role_id" validate:"required"`
 }
 
@@ -39,8 +38,8 @@ func FindClient(c *fiber.Ctx) error {
 Update Client
 */
 func UpdateClient(c *fiber.Ctx) error {
-	var req user_role
-
+	var req UserRole
+	id, _ := c.ParamsInt("id")
 	// bind body request
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(404).JSON(fiber.Map{
@@ -56,7 +55,7 @@ func UpdateClient(c *fiber.Ctx) error {
 		})
 	}
 
-	client := service.UpdateClient(req.UserID, req.RoleID)
+	client := service.UpdateClient(uint(id), req.RoleID)
 	return c.Status(200).JSON(client)
 }
 

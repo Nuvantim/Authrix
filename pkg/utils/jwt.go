@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/golang-jwt/jwt/v5"
 	"os"
+	"api/internal/domain/models"
 	"time"
 )
 
@@ -13,8 +14,10 @@ var refreshSecret = []byte(os.Getenv("REFRESH_KEY"))
 
 // Claims untuk Access Token
 type Claims struct {
-	UserID uint   `json:"user_id"`
-	Email  string `json:"email"`
+	UserID      uint     `json:"user_id"`
+	Email       string   `json:"email"`
+	Roles       []string `json:"roles"`
+	Permissions []string `json:"permissions"`
 	jwt.RegisteredClaims
 }
 
@@ -26,10 +29,21 @@ type RefreshClaims struct {
 }
 
 // Buat Access Token
-func CreateToken(userID uint, email string) (string, error) {
+func CreateToken(user models.User) (string, error) {
+	var roles []string
+	var permissions []string
+
+	for _, role := range user.Roles {
+		roles == append(roles, role.Name)
+		for _, perm := range role.Permissions {
+			permissions = append(permissions, perm.Name)
+		}
+	}
 	claims := Claims{
-		UserID: userID,
-		Email:  email,
+		UserID:      user.ID,
+		Email:       user.Email,
+		Roles:       roles,
+		Permissions: permissions,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(2 * time.Hour)), // Access token berlaku 2 jam
 		},
