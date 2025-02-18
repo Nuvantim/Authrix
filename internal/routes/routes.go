@@ -2,7 +2,7 @@ package routes
 
 import (
 	"api/internal/domain/handlers"
-	"api/internal/middleware"
+	// "api/internal/middleware"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -13,7 +13,7 @@ func Setup(app *fiber.App) {
 	app.Post("/login", handler.Login)
 
 	//protected
-	app.Use(middleware.Setup())
+	// app.Use(middleware.Setup())
 
 	// Client Route
 	app.Get("/client", handler.GetClient)
