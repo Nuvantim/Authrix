@@ -103,3 +103,8 @@ func Logout(c *fiber.Ctx) error {
 		"message": "Logout successful",
 	})
 }
+
+func Test(c *fiber.Ctx) error{
+	test := c.Locals("roles")
+	return c.Status(200).JSON(test.Permission)
+}

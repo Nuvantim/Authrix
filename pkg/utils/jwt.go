@@ -15,7 +15,7 @@ var refreshSecret = []byte(os.Getenv("REFRESH_KEY"))
 type Claims struct {
 	UserID uint           `json:"user_id"`
 	Email  string         `json:"email"`
-	Roles  []models.Role `json:"roles"`
+	Roles  []models.Role  `json:"roles"`
 	jwt.RegisteredClaims
 }
 
