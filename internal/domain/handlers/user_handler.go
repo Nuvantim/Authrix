@@ -38,7 +38,7 @@ func GetProfile(c *fiber.Ctx) error {
 Handler Register User
 */
 func RegisterAccount(c *fiber.Ctx) error {
-	var users User
+	var users UserRequest
 	if err := c.BodyParser(&users); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
@@ -58,7 +58,7 @@ func RegisterAccount(c *fiber.Ctx) error {
 		})
 	}
 
-	register := service.RegisterAccount(users)
+	register := service.RegisterAccount(users.Name, users.Email, users.Password)
 	return c.Status(200).JSON(fiber.Map{
 		"message": register,
 	})

@@ -17,7 +17,11 @@ func Setup(app *fiber.App) {
 	app.Get("/test", handler.Test)
 
 	// Client Route
-	app.Get("/client", handler.GetClient)
+	/*
+	Role Admin
+	*/
+	admin := app.Use("/client",middleware.Role("Admin"))
+	admin.Get("/client", handler.GetClient)
 	app.Get("/client/:id", handler.FindClient)
 	app.Put("/client/:id", handler.UpdateClient)
 	app.Delete("/client/:id", handler.RemoveClient)

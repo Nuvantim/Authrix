@@ -22,14 +22,14 @@ func CheckEmail(email string) bool {
 	return false
 }
 
-func RegisterAccount(users User) string {
+func RegisterAccount(Name, Email, Password string) string {
 	// hashing password
-	hashPassword := utils.HashBycrypt(users.Password)
+	hashPassword := utils.HashBycrypt(Password)
 
 	// Create UserTemp
 	user := User{
-		Name:     users.Name,
-		Email:    users.Email,
+		Name:     Name,
+		Email:    Email,
 		Password: string(hashPassword),
 	}
 	// Simpan user ke database
