@@ -36,42 +36,11 @@ func AuthAndRefreshMiddleware(c *fiber.Ctx) error {
 				c.Locals("user_id", claims.UserID)
 				c.Locals("email", claims.Email)
 				c.Locals("roles", claims.Roles)
+				c.Set("Authorization", authHeader)
 				return c.Next()
 			}
 		}
 	}
-
-	// // If access token validation fails, try to refresh it using the refresh token
-	// refreshToken := c.Cookies("refresh_token")
-	// if refreshToken != "" {
-	// 	token, err := jwt.ParseWithClaims(refreshToken, &utils.RefreshClaims{}, func(token *jwt.Token) (interface{}, error) {
-	// 		return refreshSecret, nil
-	// 	})
-
-	// 	// If the refresh token is valid, generate a new access token
-	// 	if err == nil && token.Valid {
-	// 		if claims, ok := token.Claims.(*utils.RefreshClaims); ok {
-	// 			newAccessToken, err := utils.CreateToken(claims.UserID, claims.Email)
-	// 			if err == nil {
-	// 				// Set the new access token in cookies
-	// 				c.Cookie(&fiber.Cookie{
-	// 					Name:     "access_token",
-	// 					Value:    newAccessToken,
-	// 					HTTPOnly: true,
-	// 					Secure:   true,
-	// 					SameSite: "Strict",
-	// 					Path:     "/",
-	// 				})
-
-	// 				// Set user context and proceed
-	// 				c.Locals("user_id", claims.UserID)
-	// 				c.Locals("email", claims.Email)
-
-	// 				return c.Next()
-	// 			}
-	// 		}
-	// 	}
-	// }
 
 	// If both tokens are invalid, return an unauthorized response
 	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{

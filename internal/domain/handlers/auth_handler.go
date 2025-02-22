@@ -104,7 +104,7 @@ func Logout(c *fiber.Ctx) error {
 	})
 }
 
-func Test(c *fiber.Ctx) error{
-	test := c.Locals("roles")
+func Test(c *fiber.Ctx) error {
+	test := c.Cookies("")
 	return c.Status(200).JSON(test)
 }

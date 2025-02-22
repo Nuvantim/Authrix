@@ -27,12 +27,12 @@ func Login(email, password string) (string, string, error) {
 	}
 
 	// Create access token and refresh token
-	accessToken, err := utils.CreateToken(user)
+	accessToken, err := utils.CreateToken(user.ID, user.Email, user.Roles)
 	if err != nil {
 		return "", "", err
 	}
 
-	refreshToken, err := utils.CreateRefreshToken(user.ID, user.Email)
+	refreshToken, err := utils.CreateRefreshToken(user.ID, user.Email, user.Roles)
 	if err != nil {
 		return "", "", err
 	}

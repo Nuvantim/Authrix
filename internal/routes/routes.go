@@ -18,27 +18,26 @@ func Setup(app *fiber.App) {
 
 	// Client Route
 	/*
-	Role Admin
+		Role Admin
 	*/
-	admin := app.Use("/client",middleware.Role("Admin"))
-	admin.Get("/client", handler.GetClient)
-	app.Get("/client/:id", handler.FindClient)
-	app.Put("/client/:id", handler.UpdateClient)
-	app.Delete("/client/:id", handler.RemoveClient)
+	app.Get("/client", middleware.Role("admin"), handler.GetClient)
+	app.Get("/client/:id",middleware.Role("admin"), handler.FindClient)
+	app.Put("/client/:id",middleware.Role("admin"), handler.UpdateClient)
+	app.Delete("/client/:id",middleware.Role("admin"), handler.RemoveClient)
 
 	// Role Route
-	app.Get("/role", handler.GetRole)
-	app.Get("/role/:id", handler.FindRole)
-	app.Post("/role/store", handler.CreateRole)
-	app.Put("/role/:id", handler.UpdateRole)
-	app.Delete("/role/:id", handler.DeleteRole)
+	app.Get("/role", middleware.Role("admin"), handler.GetRole)
+	app.Get("/role/:id", middleware.Role("admin"), handler.FindRole)
+	app.Post("/role/store", middleware.Role("admin"), handler.CreateRole)
+	app.Put("/role/:id", middleware.Role("admin"), handler.UpdateRole)
+	app.Delete("/role/:id", middleware.Role("admin"), handler.DeleteRole)
 
 	// Permission Route
-	app.Get("/permission", handler.GetPermission)
-	app.Get("/permission/:id", handler.FindPermission)
-	app.Post("/permission/store", handler.CreatePermission)
-	app.Put("/permission/:id", handler.UpdatePermission)
-	app.Delete("/permission/:id", handler.DeletePermission)
+	app.Get("/permission",middleware.Role("admin"), handler.GetPermission)
+	app.Get("/permission/:id",middleware.Role("admin"), handler.FindPermission)
+	app.Post("/permission/store",middleware.Role("admin"), handler.CreatePermission)
+	app.Put("/permission/:id",middleware.Role("admin"), handler.UpdatePermission)
+	app.Delete("/permission/:id",middleware.Role("admin"), handler.DeletePermission)
 
 	// User Route
 	app.Get("/account/profile", handler.GetProfile)
@@ -49,9 +48,9 @@ func Setup(app *fiber.App) {
 	// Category Route
 	app.Get("/category", handler.GetCategory)
 	app.Get("/category/:id", handler.FindCategory)
-	app.Post("/category/store", handler.CreateCategory)
-	app.Put("/category/:id", handler.UpdateCategory)
-	app.Delete("/category/:id", handler.DeleteCategory)
+	app.Post("/category/store",middleware.Permission("kelola category"), handler.CreateCategory)
+	app.Put("/category/:id",middleware.Permission("kelola category"), handler.UpdateCategory)
+	app.Delete("/category/:id",middleware.Permission("kelola category"), handler.DeleteCategory)
 
 	// Product Route
 	app.Get("/product", handler.GetProduct)
