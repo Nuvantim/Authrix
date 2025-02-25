@@ -1,9 +1,11 @@
 package utils
 
 import (
+	"api/internal/database"
 	"api/internal/domain/models"
 	"github.com/golang-jwt/jwt/v5"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -23,7 +25,6 @@ type Claims struct {
 type RefreshClaims struct {
 	UserID uint   `json:"user_id"`
 	Email  string `json:"email"`
-	Roles  []models.Role `json:"roles"`
 	jwt.RegisteredClaims
 }
 
@@ -36,8 +37,8 @@ func CreateToken(userID uint, Email string, Roles []models.Role) (string, error)
 		Email:  Email,
 		Roles:  Roles,
 		RegisteredClaims: jwt.RegisteredClaims{
-			IssuedAt:  jwt.NewNumericDate(now),                    // Add issued at
-			ExpiresAt: jwt.NewNumericDate(now.Add(2 * time.Hour)), // Token valid for 2 hours
+			IssuedAt:  jwt.NewNumericDate(now),                       // Add issued at
+			ExpiresAt: jwt.NewNumericDate(now.Add(50 * time.Second)), // Token valid for 2 hours
 		},
 	}
 
@@ -62,28 +63,23 @@ func CreateRefreshToken(userID uint, email string, Roles []models.Role) (string,
 	return token.SignedString(refreshSecret)
 }
 
-// Fungsi untuk memperbarui access token menggunakan refresh token
-// func RefreshAccessToken(refreshToken string) (string, error) {
-// 	// Parse refresh token
-// 	token, err := jwt.ParseWithClaims(refreshToken, &RefreshClaims{}, func(token *jwt.Token) (interface{}, error) {
-// 		return jwtSecret, nil
-// 	})
+func AutoRefressToken(id string) (string, error) {
+	UserID, _ := strconv.Atoi(id)
+	var user models.User
+	database.DB.Preload("Roles").Preload("Roles.Permissions").Take(&user, uint(UserID))
 
-// 	if err != nil || !token.Valid {
-// 		return "", errors.New("invalid refresh token")
-// 	}
+	now := time.Now()
 
-// 	// Ambil klaim dari refresh token
-// 	claims, ok := token.Claims.(*RefreshClaims)
-// 	if !ok {
-// 		return "", errors.New("invalid claims")
-// 	}
+	claims := Claims{
+		UserID: user.ID,
+		Email:  user.Email,
+		Roles:  user.Roles,
+		RegisteredClaims: jwt.RegisteredClaims{
+			IssuedAt:  jwt.NewNumericDate(now),                    // Add issued at
+			ExpiresAt: jwt.NewNumericDate(now.Add(2 * time.Hour)), // Token valid for 2 hours
+		},
+	}
 
-// 	// Buat access token baru
-// 	newAccessToken, err := CreateToken(claims.UserID, claims.Email)
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	return newAccessToken, nil
-// }
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(jwtSecret)
+}

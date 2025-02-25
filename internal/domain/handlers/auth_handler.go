@@ -105,6 +105,6 @@ func Logout(c *fiber.Ctx) error {
 }
 
 func Test(c *fiber.Ctx) error {
-	test := c.Cookies("")
+	test := c.Cookies("refresh_token")
 	return c.Status(200).JSON(test)
 }
