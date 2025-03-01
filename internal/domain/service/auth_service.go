@@ -32,7 +32,7 @@ func Login(email, password string) (string, string, error) {
 		return "", "", err
 	}
 
-	refreshToken, err := utils.CreateRefreshToken(user.ID, user.Email, user.Roles)
+	refreshToken, err := utils.CreateRefreshToken(user.ID, user.Email)
 	if err != nil {
 		return "", "", err
 	}

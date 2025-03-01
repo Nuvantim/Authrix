@@ -4,7 +4,7 @@ import (
 	"api/pkg/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
-	"log" // Added log for error handling
+	"log"
 	"os"
 	"strings"
 )
@@ -47,7 +47,7 @@ func AuthAndRefreshMiddleware(c *fiber.Ctx) error {
 
 				if err == nil && refreshToken.Valid {
 					if claims, ok := refreshToken.Claims.(*utils.RefreshClaims); ok {
-						newAccessToken, err := utils.AutoRefressToken(claims.ID)
+						newAccessToken, err := utils.AutoRefressToken(claims.UserID)
 						if err == nil {
 							// Validate the new access token
 							token, err := jwt.ParseWithClaims(newAccessToken, &utils.Claims{}, func(token *jwt.Token) (interface{}, error) {

@@ -5,7 +5,6 @@ import (
 	"api/internal/domain/models"
 	"github.com/golang-jwt/jwt/v5"
 	"os"
-	"strconv"
 	"time"
 )
 
@@ -38,7 +37,7 @@ func CreateToken(userID uint, Email string, Roles []models.Role) (string, error)
 		Roles:  Roles,
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(now),                       // Add issued at
-			ExpiresAt: jwt.NewNumericDate(now.Add(50 * time.Second)), // Token valid for 2 hours
+			ExpiresAt: jwt.NewNumericDate(now.Add(2 * time.Hour)), // Token valid for 2 hours
 		},
 	}
 
@@ -47,7 +46,7 @@ func CreateToken(userID uint, Email string, Roles []models.Role) (string, error)
 }
 
 // Buat Refresh Token
-func CreateRefreshToken(userID uint, email string, Roles []models.Role) (string, error) {
+func CreateRefreshToken(userID uint, email string) (string, error) {
 	now := time.Now()
 
 	claims := RefreshClaims{
@@ -63,10 +62,9 @@ func CreateRefreshToken(userID uint, email string, Roles []models.Role) (string,
 	return token.SignedString(refreshSecret)
 }
 
-func AutoRefressToken(id string) (string, error) {
-	UserID, _ := strconv.Atoi(id)
+func AutoRefressToken(UserID uint) (string, error) {
 	var user models.User
-	database.DB.Preload("Roles").Preload("Roles.Permissions").Take(&user, uint(UserID))
+	database.DB.Preload("Roles").Preload("Roles.Permissions").Take(&user, UserID)
 
 	now := time.Now()
 
