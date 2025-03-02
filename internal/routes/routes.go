@@ -24,7 +24,7 @@ func Setup(app *fiber.App) {
 	client.Delete("/client/:id", handler.RemoveClient)
 
 	// Role Route
-	role := app.Group("/role",middleware.Role("admin")) //Role access
+	role := app.Group("/role", middleware.Role("admin")) //Role access
 	role.Get("/role", handler.GetRole)
 	role.Get("/role/:id", handler.FindRole)
 	role.Post("/role/store", handler.CreateRole)
@@ -49,7 +49,7 @@ func Setup(app *fiber.App) {
 	app.Get("/category", handler.GetCategory)
 	app.Get("/category/:id", handler.FindCategory)
 
-	category := app.Group("/category",middleware.Permission("kelola category")) // Permission Access
+	category := app.Group("/category", middleware.Permission("kelola category")) // Permission Access
 	category.Post("/store", handler.CreateCategory)
 	category.Put("/:id", handler.UpdateCategory)
 	category.Delete("/:id", handler.DeleteCategory)
@@ -58,7 +58,7 @@ func Setup(app *fiber.App) {
 	app.Get("/product", handler.GetProduct)
 	app.Get("/product/:id", handler.FindProduct)
 
-	product := app.Group("/product",middleware.Permission("kelola product")) // Permission Access
+	product := app.Group("/product", middleware.Permission("kelola product")) // Permission Access
 	product.Post("/product/store", handler.CreateProduct)
 	product.Put("/product/:id", handler.UpdateProduct)
 	product.Delete("/product/:id", handler.DeleteProduct)
