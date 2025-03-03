@@ -8,63 +8,83 @@ import (
 	"strings"
 )
 
-
+// AuthAndRefreshMiddleware verifikasi token JWT menggunakan RS512
 func AuthAndRefreshMiddleware(c *fiber.Ctx) error {
-	// Ambil Authorization header
+	var tokenString string
 	authHeader := c.Get("Authorization")
-	if authHeader == "" {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "Authorization header is required",
-		})
+	authCookie := c.Cookies("refresh_token")
+
+	// Ambil token dari header Authorization
+	if strings.HasPrefix(authHeader, "Bearer ") {
+		tokenString = strings.TrimPrefix(authHeader, "Bearer ")
 	}
 
-	// Format header: Bearer <token>
-	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-
-	if tokenString == authHeader { // Jika tidak ada 'Bearer ' di depan, maka token tidak ada
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "Authorization header must be Bearer <token>",
+	// Validasi access token
+	if tokenString != "" {
+		token, err := jwt.ParseWithClaims(tokenString, &utils.Claims{}, func(token *jwt.Token) (interface{}, error) {
+			// Pastikan metode signing adalah RS512
+			if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok || token.Method.Alg() != "RS512" {
+				return nil, jwt.ErrSignatureInvalid
+			}
+			return utils.PublicKey, nil
 		})
-	}
 
-	// Verifikasi token dengan kunci publik
-	publicKey, err := utils.LoadPublicKey()
-	if err != nil {
-		log.Println("Error loading public key:", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Error loading public key",
-		})
-	}
+		// Jika access token valid, set user context dan lanjutkan
+		if err == nil && token.Valid {
+			if claims, ok := token.Claims.(*utils.Claims); ok {
+				c.Locals("user_id", claims.UserID)
+				c.Locals("email", claims.Email)
+				c.Locals("roles", claims.Roles)
+				c.Set("Authorization", authHeader)
+				return c.Next()
+			}
+		} else {
+			// Jika access token tidak valid, coba refresh token
+			if authHeader != "" && authCookie != "" {
+				refreshToken, err := jwt.ParseWithClaims(authCookie, &utils.RefreshClaims{}, func(token *jwt.Token) (interface{}, error) {
+					// Pastikan metode signing adalah RS512
+					if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok || token.Method.Alg() != "RS512" {
+						return nil, jwt.ErrSignatureInvalid
+					}
+					return utils.PublicKey, nil
+				})
 
-	// Parsing dan verifikasi token
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		// Pastikan signing method sesuai (RS512 dalam kasus ini)
-		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, fiber.NewError(fiber.StatusUnauthorized, "Invalid signing method")
+				if err == nil && refreshToken.Valid {
+					if claims, ok := refreshToken.Claims.(*utils.RefreshClaims); ok {
+						newAccessToken, err := utils.AutoRefreshToken(claims.UserID)
+						if err == nil {
+							// Validasi token baru
+							token, err := jwt.ParseWithClaims(newAccessToken, &utils.Claims{}, func(token *jwt.Token) (interface{}, error) {
+								if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok || token.Method.Alg() != "RS512" {
+									return nil, jwt.ErrSignatureInvalid
+								}
+								return utils.PublicKey, nil
+							})
+
+							if err == nil && token.Valid {
+								if claims, ok := token.Claims.(*utils.Claims); ok {
+									c.Locals("user_id", claims.UserID)
+									c.Locals("email", claims.Email)
+									c.Locals("roles", claims.Roles)
+									c.Set("Authorization", "Bearer "+newAccessToken)
+									return c.Next()
+								}
+							} else {
+								log.Printf("Error validating new access token: %v", err)
+							}
+						} else {
+							log.Printf("Error refreshing access token: %v", err)
+						}
+					}
+				} else {
+					log.Printf("Refresh token invalid: %v", err)
+				}
+			}
 		}
-		return publicKey, nil
+	}
+
+	// Jika kedua token tidak valid, kembalikan response unauthorized
+	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+		"message": "Authentication required",
 	})
-
-	if err != nil || !token.Valid {
-		log.Println("Error parsing or invalid token:", err)
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "Invalid or expired token",
-		})
-	}
-
-	// Menyimpan informasi token di context untuk digunakan di handler selanjutnya
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "Invalid claims",
-		})
-	}
-
-	// Set data user dari token ke context Fiber, bisa digunakan di route handler selanjutnya
-	c.Locals("user_id", claims["user_id"])
-	c.Locals("email", claims["email"])
-	c.Locals("roles", claims["roles"])
-
-	// Lanjutkan ke handler berikutnya
-	return c.Next()
 }

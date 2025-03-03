@@ -18,26 +18,26 @@ func Setup(app *fiber.App) {
 
 	// Client Route
 	client := app.Group("/client", middleware.Role("admin")) //Role access
-	client.Get("/client", handler.GetClient)
-	client.Get("/client/:id", handler.FindClient)
-	client.Put("/client/:id", handler.UpdateClient)
-	client.Delete("/client/:id", handler.RemoveClient)
+	client.Get("", handler.GetClient)
+	client.Get("/:id", handler.FindClient)
+	client.Put("/:id", handler.UpdateClient)
+	client.Delete("/:id", handler.RemoveClient)
 
 	// Role Route
 	role := app.Group("/role", middleware.Role("admin")) //Role access
-	role.Get("/role", handler.GetRole)
-	role.Get("/role/:id", handler.FindRole)
-	role.Post("/role/store", handler.CreateRole)
-	role.Put("/role/:id", handler.UpdateRole)
-	role.Delete("/role/:id", handler.DeleteRole)
+	role.Get("", handler.GetRole)
+	role.Get("/:id", handler.FindRole)
+	role.Post("/store", handler.CreateRole)
+	role.Put("/:id", handler.UpdateRole)
+	role.Delete("/:id", handler.DeleteRole)
 
 	// Permission Route
 	permission := app.Group("/permission", middleware.Role("admin")) //Role access
-	permission.Get("/permission", handler.GetPermission)
-	permission.Get("/permission/:id", handler.FindPermission)
-	permission.Post("/permission/store", handler.CreatePermission)
-	permission.Put("/permission/:id", handler.UpdatePermission)
-	permission.Delete("/permission/:id", handler.DeletePermission)
+	permission.Get("", handler.GetPermission)
+	permission.Get("/:id", handler.FindPermission)
+	permission.Post("/store", handler.CreatePermission)
+	permission.Put("/:id", handler.UpdatePermission)
+	permission.Delete("/:id", handler.DeletePermission)
 
 	// User Route
 	app.Get("/account/profile", handler.GetProfile)

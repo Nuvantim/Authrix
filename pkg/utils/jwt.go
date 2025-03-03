@@ -8,51 +8,49 @@ import (
 	"encoding/pem"
 	"errors"
 	"github.com/golang-jwt/jwt/v5"
-	"io/ioutil"
 	"log"
+	"os"
 	"time"
 )
 
 var (
-	privateKey *rsa.PrivateKey
-	publicKey  *rsa.PublicKey
+	PrivateKey *rsa.PrivateKey
+	PublicKey  *rsa.PublicKey
 )
 
-// Load Private Key File
-func LoadPrivateKey() (*rsa.PrivateKey, error) {
-	keyBytes, err := ioutil.ReadFile("private.pem")
-	if err != nil {
-		return nil, err
-	}
-
-	block, rest := pem.Decode(keyBytes)
-	if block == nil || block.Type != "RSA PRIVATE KEY" {
-		return nil, errors.New("invalid private key format")
-	}
-
-	// Handle any remaining data after decoding
-	if len(rest) > 0 {
-		return nil, errors.New("extra data found after private key")
-	}
-
-	return x509.ParsePKCS1PrivateKey(block.Bytes)
+// Claims mendefinisikan struktur untuk token JWT
+type Claims struct {
+	UserID uint          `json:"user_id"`
+	Email  string        `json:"email"`
+	Roles  []models.Role `json:"roles,omitempty"`
+	jwt.RegisteredClaims
 }
 
-// Load Public Key File
-func LoadPublicKey() (*rsa.PublicKey, error) {
-	keyBytes, err := ioutil.ReadFile("public.pem")
+// RefreshClaims mendefinisikan struktur untuk refresh token
+type RefreshClaims struct {
+	UserID uint   `json:"user_id"`
+	Email  string `json:"email"`
+	jwt.RegisteredClaims
+}
+
+// loadKey membaca dan memproses file kunci RSA
+func loadKey(filename string, isPrivate bool) (interface{}, error) {
+	keyBytes, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
 
 	block, rest := pem.Decode(keyBytes)
-	if block == nil || block.Type != "RSA PUBLIC KEY" {
-		return nil, errors.New("invalid public key format")
+	if block == nil || (isPrivate && block.Type != "RSA PRIVATE KEY") || (!isPrivate && block.Type != "RSA PUBLIC KEY") {
+		return nil, errors.New("invalid key format")
 	}
 
-	// Handle any remaining data after decoding
 	if len(rest) > 0 {
-		return nil, errors.New("extra data found after public key")
+		return nil, errors.New("extra data found after key")
+	}
+
+	if isPrivate {
+		return x509.ParsePKCS1PrivateKey(block.Bytes)
 	}
 
 	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
@@ -68,79 +66,82 @@ func LoadPublicKey() (*rsa.PublicKey, error) {
 	return rsaPubKey, nil
 }
 
-// Initialize the keys
+// LoadPrivateKey memuat kunci privat dari file
+func LoadPrivateKey() (*rsa.PrivateKey, error) {
+	key, err := loadKey("private.pem", true)
+	if err != nil {
+		return nil, err
+	}
+	return key.(*rsa.PrivateKey), nil
+}
+
+// LoadPublicKey memuat kunci publik dari file
+func LoadPublicKey() (*rsa.PublicKey, error) {
+	key, err := loadKey("public.pem", false)
+	if err != nil {
+		return nil, err
+	}
+	return key.(*rsa.PublicKey), nil
+}
+
 func init() {
 	var err error
-	privateKey, err = LoadPrivateKey()
+	PrivateKey, err = LoadPrivateKey()
 	if err != nil {
 		log.Fatalf("Error loading private key: %v", err)
 	}
-
-	publicKey, err = LoadPublicKey()
+	PublicKey, err = LoadPublicKey()
 	if err != nil {
 		log.Fatalf("Error loading public key: %v", err)
 	}
 }
 
-// Buat Access Token
+// CreateToken membuat access token
 func CreateToken(userID uint, email string, roles []models.Role) (string, error) {
-	// Ensure the private key is not nil before using it
-	if privateKey == nil {
+	if PrivateKey == nil {
 		return "", errors.New("private key is nil")
 	}
 
-	claims := jwt.MapClaims{
-		"user_id": userID,
-		"email":   email,
-		"roles":   roles,
-		"exp":     time.Now().Add(time.Hour * 1).Unix(),
+	now := time.Now()
+	claims := Claims{
+		UserID: userID,
+		Email:  email,
+		Roles:  roles,
+		RegisteredClaims: jwt.RegisteredClaims{
+			IssuedAt:  jwt.NewNumericDate(now),
+			ExpiresAt: jwt.NewNumericDate(now.Add(time.Hour * 1)),
+		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS512, claims)
-
-	tokenString, err := token.SignedString(privateKey)
-	if err != nil {
-		return "", err
-	}
-
-	return tokenString, nil
+	return token.SignedString(PrivateKey)
 }
 
-// Buat Refresh Token
+// CreateRefreshToken membuat refresh token
 func CreateRefreshToken(userID uint, email string) (string, error) {
-	// Ensure the private key is not nil before using it
-	if privateKey == nil {
+	if PrivateKey == nil {
 		return "", errors.New("private key is nil")
 	}
 
-	claims := jwt.MapClaims{
-		"user_id": userID,
-		"email":   email,
-		"exp":     time.Now().Add(time.Hour * 1).Unix(),
+	now := time.Now()
+	claims := RefreshClaims{
+		UserID: userID,
+		Email:  email,
+		RegisteredClaims: jwt.RegisteredClaims{
+			IssuedAt:  jwt.NewNumericDate(now),
+			ExpiresAt: jwt.NewNumericDate(now.Add(24 * time.Hour)),
+		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS512, claims)
-
-	tokenString, err := token.SignedString(privateKey)
-	if err != nil {
-		return "", err
-	}
-
-	return tokenString, nil
+	return token.SignedString(PrivateKey)
 }
 
-// AutoRefreshToken
+// AutoRefreshToken memperbarui token secara otomatis
 func AutoRefreshToken(userID uint) (string, error) {
 	var user models.User
-	// Preloading roles and permissions
 	if err := database.DB.Preload("Roles").Preload("Roles.Permissions").Take(&user, userID).Error; err != nil {
 		return "", err
 	}
-
-	token, err := CreateToken(user.ID, user.Email, user.Roles)
-	if err != nil {
-		return "", err
-	}
-
-	return token, nil
+	return CreateToken(user.ID, user.Email, user.Roles)
 }
