@@ -1,2 +1,0 @@
-# Lunatic
-Simple jwt authorization
