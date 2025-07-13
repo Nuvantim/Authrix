@@ -29,11 +29,11 @@ type MailConfig struct {
 	Address  string `envconfig:"MAIL_FROM_ADDRESS"`
 }
 
-func CheckEnv() (string, error) {
+func CheckEnv() error  {
 	if err := godotenv.Load(); err != nil {
-		return "", errors.New("Failed to load configuration file: " + err.Error())
+		return errors.New(err.Error())
 	}
-	return "Running Configuration..", nil
+	return nil
 }
 
 func GetDatabaseConfig() (*DatabaseConfig, error) {
@@ -53,8 +53,8 @@ func GetServerConfig() (*ServerConfig, error) {
 }
 
 func GetMaiConfig() (*MailConfig, error) {
-	var mail MailConfigg
-	if err != envconfig.Process("",&mail); err != nil {
+	var mail MailConfig
+	if err := envconfig.Process("",&mail); err != nil {
 		return nil, err
 	}
 	return &mail, nil

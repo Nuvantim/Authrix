@@ -1,26 +1,40 @@
 package main
 
-import(
+import (
+	"api/config"
 	"api/internal/server/http"
 	"log"
+	"api/database"
 )
 
-func main(){
-	serv := server.ServerGo()
+func main() {
+	// Check Environment
+	if err := config.CheckEnv(); err != nil {
+		log.Fatal(err)
+	}
 
-	var envServ, err = config.GetServerConfig()
-	if err != nil{
+	// Start Server
+	app := http.ServerGo()
+
+	// Get Server Config
+	serverConfig, err := config.GetServerConfig()
+	if err != nil {
 		log.Fatal(err)
 	}
 
 	done := make(chan bool, 1)
 
+	// Start server in goroutine
 	go func() {
-		serv.Listen(":"+envServ.Port)
+		if err := app.Listen(":" + serverConfig.Port); err != nil {
+			log.Printf("Server stopped: %v", err)
+			done <- true
+		}
 	}()
 
-	config.gracefulShutdown(serv, done)
+	config.GracefulShutdown(app, done)
 
 	<-done
-
+	// Close Connection database
+	database.CloseDB()
 }

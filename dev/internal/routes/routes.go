@@ -1,8 +1,7 @@
 package routes
 
 import (
-	"api/internal/domain/handlers"
-	// "api/internal/middleware"
+	"api/internal/handlers"
 	"github.com/gofiber/fiber/v2"
 )
 

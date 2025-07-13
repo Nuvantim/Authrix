@@ -3,14 +3,14 @@ package config
 import (
 	"context"
 	"github.com/gofiber/fiber/v2"
+	
 	"log"
-	"os"
 	"os/signal"
 	"syscall"
 	"time"
 )
 
-func gracefulShutdown(app *fiber.App, done chan bool) {
+func GracefulShutdown(app *fiber.App, done chan bool) {
 	// Create context that listens for the interrupt signal from the OS.
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
