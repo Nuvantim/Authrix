@@ -2,9 +2,9 @@ package main
 
 import (
 	"api/config"
+	"api/database"
 	"api/internal/server/http"
 	"log"
-	"api/database"
 )
 
 func main() {

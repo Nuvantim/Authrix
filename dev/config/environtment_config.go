@@ -29,7 +29,7 @@ type MailConfig struct {
 	Address  string `envconfig:"MAIL_FROM_ADDRESS"`
 }
 
-func CheckEnv() error  {
+func CheckEnv() error {
 	if err := godotenv.Load(); err != nil {
 		return errors.New(err.Error())
 	}
@@ -54,7 +54,7 @@ func GetServerConfig() (*ServerConfig, error) {
 
 func GetMaiConfig() (*MailConfig, error) {
 	var mail MailConfig
-	if err := envconfig.Process("",&mail); err != nil {
+	if err := envconfig.Process("", &mail); err != nil {
 		return nil, err
 	}
 	return &mail, nil

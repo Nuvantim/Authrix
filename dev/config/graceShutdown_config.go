@@ -3,7 +3,7 @@ package config
 import (
 	"context"
 	"github.com/gofiber/fiber/v2"
-	
+
 	"log"
 	"os/signal"
 	"syscall"

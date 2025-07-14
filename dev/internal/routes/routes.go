@@ -7,4 +7,5 @@ import (
 
 func Setup(app *fiber.App) {
 	app.Get("/hello", handler.Hello)
+	app.Post("/send/otp", handler.SendOTP)
 }

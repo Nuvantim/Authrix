@@ -1,9 +1,9 @@
 package config
 
 import (
-	"time"
 	"log"
-	
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	// "github.com/gofiber/fiber/v2/middleware/csrf"
@@ -21,7 +21,7 @@ func FiberConfig() fiber.Config {
 
 	// Get Environtmet Server Config
 	var envServ, err = GetServerConfig()
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 
@@ -32,7 +32,7 @@ func FiberConfig() fiber.Config {
 		StrictRouting: true,
 		ServerHeader:  "Kalveir Project",
 		Prefork:       false,
-		Views: engine,
+		Views:         engine,
 	}
 }
 
