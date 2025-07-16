@@ -4,12 +4,11 @@ import (
 	"crypto/rand"
 	// "gopkg.in/gomail.v2"
 	"math/big"
-	_"os"
-	"strconv"
-	_"strings"
+	// "os"
+	// "strings"
 )
 
-func GenerateOTP() (int32, string) {
+func GenerateOTP() string {
 	charset := []byte("123456789")
 	code := make([]byte, 7)
 
@@ -18,10 +17,9 @@ func GenerateOTP() (int32, string) {
 		code[i] = charset[n.Int64()]
 	}
 
-	otpStr := string(code)
-	otp, _ := strconv.ParseUint(otpStr, 10, 32)
+	otp := string(code)
 
-	return int32(otp), otpStr
+	return otp
 }
 
 // func SendOTP(targetEmail, otp string) error {

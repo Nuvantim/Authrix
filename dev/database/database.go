@@ -37,6 +37,7 @@ func InitDB() {
 }
 
 func CloseDB() {
+	log.Println("Disconnection Database")
 	if DB != nil {
 		DB.Close()
 	}
