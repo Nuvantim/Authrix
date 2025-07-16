@@ -11,13 +11,13 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/idempotency"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/gofiber/template/html/v2"
+	// "github.com/gofiber/template/html/v2"
 )
 
 // FiberConfig berisi konfigurasi Fiber yang aman
 func FiberConfig() fiber.Config {
 	// set folder views as html rendering
-	engine := html.New("views", ".html")
+	// engine := html.New("views", ".html")
 
 	// Get Environtmet Server Config
 	var envServ, err = GetServerConfig()
@@ -32,7 +32,7 @@ func FiberConfig() fiber.Config {
 		StrictRouting: true,
 		ServerHeader:  "Kalveir Project",
 		Prefork:       false,
-		Views:         engine,
+		// Views:         engine,
 	}
 }
 

@@ -30,6 +30,27 @@ func Register(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"message": user_regist})
 }
 
-// func Login(c *fiber.Ctx) error{}
-// func UpdatePassword(c *fiber.Ctx) error{}
+func Login(c *fiber.Ctx) error {
+	var login request.Login
+	if err := c.BodyParser(&login); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
+	}
+	user_login, err := service.Login(login)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+	return c.Status(200).JSON(fiber.Map{"message": "sukses", "access_token": user_login})
+}
+func UpdatePassword(c *fiber.Ctx) error {
+	var pass request.UpdatePassword
+	if err := c.BodyParser(&pass); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
+	}
+	update_password, err := service.UpdatePassword(pass)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+	return c.Status(200).JSON(fiber.Map{"message": update_password})
+}
+
 // func Logout(c *fiber.Ctx){}
