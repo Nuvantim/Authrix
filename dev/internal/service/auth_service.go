@@ -5,8 +5,12 @@ import (
 	repo "api/internal/repository"
 	req "api/internal/request"
 	"api/pkgs/utils"
+
+	"context"
 	ctx "context"
 	"errors"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func SendOTP(email string) (string, error) {
@@ -48,11 +52,29 @@ func Register(regist req.Register) (string, error) {
 		Password: string(pass),
 	}
 
-	if err := db.Queries.CreateUser(ctx.Background(), createUser); err != nil {
-		return "", err
-	}
+	// Create a buffered channel to receive any error from the goroutine
+	errChan := make(chan error, 1)
 
-	if err := db.Queries.DeleteOTP(ctx.Background(), createUser.Email); err != nil {
+	// Run user creation and OTP deletion in a separate goroutine
+	go func() {
+		// Create the user
+		if err := db.Queries.CreateUser(context.Background(), createUser); err != nil {
+			errChan <- err // Send error if user creation fails
+			return
+		}
+
+		// Delete the used OTP
+		if err := db.Queries.DeleteOTP(context.Background(), createUser.Email); err != nil {
+			errChan <- err // Send error if OTP deletion fails
+			return
+		}
+
+		// Both operations succeeded
+		errChan <- nil
+	}()
+
+	// Wait for the result from the goroutine
+	if err := <-errChan; err != nil {
 		return "", err
 	}
 
@@ -60,25 +82,20 @@ func Register(regist req.Register) (string, error) {
 }
 
 func Login(login req.Login) (string, error) {
-	psw := utils.HashBycrypt(login.Password) //Hashing Password
 	// Find data account
-	login_user := repo.LoginUserParams{
-		Email:    login.Email,
-		Password: string(psw),
-	}
-	data, err := db.Queries.LoginUser(ctx.Background(), login_user)
+	data, err := db.Queries.FindEmail(ctx.Background(), login.Email)
 	if err != nil {
-		return "", err
-	}
-	// check data if not found
-	if data.ID == 0 {
 		return "", errors.New("Account Not Found")
+	}
+	//compared password
+	if err := bcrypt.CompareHashAndPassword(data.Password, []byte(login.Password)); err != nil {
+		return "", errors.New("Password Incorect")
 	}
 
 	// Create JWT
 	/* coming soon*/
 
-	return "jwt", nil
+	return "login success", nil
 
 }
 
@@ -107,12 +124,27 @@ func UpdatePassword(pass req.UpdatePassword) (string, error) {
 		Email:    email_search.Email,
 		Password: string(psw),
 	}
+	// Create a buffered channel to receive any error from the goroutine
+	errChan := make(chan error, 1)
 
-	if err := db.Queries.UpdatePassword(ctx.Background(), updatePassword); err != nil {
-		return "", err
-	}
+	// Run database operations in a separate goroutine
+	go func() {
 
-	if err := db.Queries.DeleteOTP(ctx.Background(), email_search.Email); err != nil {
+		// Try to update the password
+		if err := db.Queries.UpdatePassword(context.Background(), updatePassword); err != nil {
+			errChan <- err
+			return
+		}
+
+		// Delete OTP code by email
+		if err := db.Queries.DeleteOTP(context.Background(), email_search.Email); err != nil {
+			errChan <- err
+			return
+		}
+		errChan <- nil
+	}()
+
+	if err := <-errChan; err != nil {
 		return "", err
 	}
 
