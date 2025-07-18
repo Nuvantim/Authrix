@@ -6,7 +6,6 @@ import (
 	req "api/internal/request"
 	"api/pkgs/utils"
 
-	"context"
 	ctx "context"
 	"errors"
 
@@ -58,13 +57,13 @@ func Register(regist req.Register) (string, error) {
 	// Run user creation and OTP deletion in a separate goroutine
 	go func() {
 		// Create the user
-		if err := db.Queries.CreateUser(context.Background(), createUser); err != nil {
+		if err := db.Queries.CreateUser(ctx.Background(), createUser); err != nil {
 			errChan <- err // Send error if user creation fails
 			return
 		}
 
 		// Delete the used OTP
-		if err := db.Queries.DeleteOTP(context.Background(), createUser.Email); err != nil {
+		if err := db.Queries.DeleteOTP(ctx.Background(), createUser.Email); err != nil {
 			errChan <- err // Send error if OTP deletion fails
 			return
 		}
@@ -88,7 +87,7 @@ func Login(login req.Login) (string, error) {
 		return "", errors.New("Account Not Found")
 	}
 	//compared password
-	if err := bcrypt.CompareHashAndPassword(data.Password, []byte(login.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(data.Password), []byte(login.Password)); err != nil {
 		return "", errors.New("Password Incorect")
 	}
 
@@ -131,13 +130,13 @@ func UpdatePassword(pass req.UpdatePassword) (string, error) {
 	go func() {
 
 		// Try to update the password
-		if err := db.Queries.UpdatePassword(context.Background(), updatePassword); err != nil {
+		if err := db.Queries.UpdatePassword(ctx.Background(), updatePassword); err != nil {
 			errChan <- err
 			return
 		}
 
 		// Delete OTP code by email
-		if err := db.Queries.DeleteOTP(context.Background(), email_search.Email); err != nil {
+		if err := db.Queries.DeleteOTP(ctx.Background(), email_search.Email); err != nil {
 			errChan <- err
 			return
 		}

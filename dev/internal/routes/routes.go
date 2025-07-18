@@ -11,4 +11,8 @@ func Setup(app *fiber.App) {
 	app.Post("/register", handler.Register)
 	app.Post("/login", handler.Login)
 	app.Post("/update/password", handler.UpdatePassword)
+
+	// user
+	app.Get("/account/profile", handler.GetProfile)
+	app.Put("/account/update", handler.UpdateProfile)
 }
