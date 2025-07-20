@@ -130,7 +130,7 @@ func ResetPassword(pass req.ResetPassword) (string, error) {
 	go func() {
 
 		// Try to update the password
-		if err := db.Queries.ResetPassword(ctx.Background(), ResetPassword); err != nil {
+		if err := db.Queries.ResetPassword(ctx.Background(), resetPassword); err != nil {
 			errChan <- err
 			return
 		}

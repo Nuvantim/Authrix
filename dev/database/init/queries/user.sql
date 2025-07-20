@@ -4,7 +4,7 @@ WITH new_user AS(
 	)
 INSERT INTO user_profile (user_id) SELECT id FROM new_user;
 
--- name: GetUser :one
+-- name: GetProfile :one
 SELECT sqlc.embed(user_account), sqlc.embed(user_profile)
 FROM "public".user_account
 INNER JOIN "public".user_profile ON (user_account.id = user_profile.user_id) WHERE user_account.id = $1 LIMIT 1;
@@ -12,7 +12,7 @@ INNER JOIN "public".user_profile ON (user_account.id = user_profile.user_id) WHE
 -- name: FindEmail :one
 SELECT id, email,password FROM user_account WHERE email = $1 LIMIT 1;
 
--- name: UpdateProfile :exec
+-- name: UpdateAccount :exec
 WITH updated_account AS (
     UPDATE user_account SET name = $2 WHERE id= $1
 )
@@ -25,6 +25,6 @@ UPDATE user_account SET password=$2 WHERE id=$1;
 -- name: ResetPassword :exec
 UPDATE user_account SET password=$2 WHERE email=$1;
 
--- name: DeleteProfile :exec
+-- name: DeleteAccount :exec
 DELETE FROM user_account WHERE id = $1;
 

@@ -1,11 +1,12 @@
 package request
+import "github.com/jackc/pgx/v5/pgtype"
 
-type UpdateProfile struct {
+type UpdateAccount struct {
 	Name     string `json:"name"`
 	Password string `json:"password"`
-	Age      string `json:"age"`
-	Phone    string `json:"phone"`
-	District string `json:"district"`
-	City     string `json:"city"`
-	Country  string `json:"country"`
+	Age      pgtype.Int4 `json:"age"`
+	Phone    pgtype.Int4 `json:"phone"`
+	District pgtype.Text `json:"district"`
+	City     pgtype.Text `json:"city"`
+	Country  pgtype.Text `json:"country"`
 }

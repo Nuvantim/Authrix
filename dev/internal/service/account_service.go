@@ -8,21 +8,19 @@ import (
 
 	ctx "context"
 	"errors"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
-func GetProfile(userID int32) (repo.GetUserRow, error) {
-	data, err := db.Queries.GetUser(ctx.Background(), userID)
+func GetProfile(userID int32) (repo.GetProfileRow, error) {
+	data, err := db.Queries.GetProfile(ctx.Background(), userID)
 	if err != nil {
-		return repo.GetUserRow{}, errors.New("Account not found !")
+		return repo.GetProfileRow{}, errors.New("Account not found !")
 	}
 	return data, nil
 }
 
-func UpdateProfile(user req.UpdateProfile, userIDs int32) (repo.GetUserRow, error) {
+func UpdateAccount(user req.UpdateAccount, userIDs int32) (repo.GetProfileRow, error) {
 	// Define update profile
-	var UpdateProfiles = repo.UpdateProfileParams{
+	var updateAccount = repo.UpdateAccountParams{
 		UserID:   userIDs,
 		Name:     user.Name,
 		Age:      user.Age,
@@ -32,27 +30,25 @@ func UpdateProfile(user req.UpdateProfile, userIDs int32) (repo.GetUserRow, erro
 		Country:  user.Country,
 	}
 
-	// Update password is available
-	if user.Password != "" {
-		psw := utils.HashBycrypt(user.Password)
-		var passUpdate = repo.UpdatePasswordParams{
-			ID:       userIDs,
-			Password: string(psw),
-		}
-	}
-
 	// Create a buffered channel to receive any error from the goroutine
 	errChan := make(chan error, 1)
 
 	// Run user creation and OTP deletion in a separate goroutine
 	go func() {
+		// Update password is available
 		if user.Password != "" {
+			psw := utils.HashBycrypt(user.Password)
+			passUpdate := repo.UpdatePasswordParams{
+				ID:       userIDs,
+				Password: string(psw),
+			}
 			if err := db.Queries.UpdatePassword(ctx.Background(), passUpdate); err != nil {
 				errChan <- err
 				return
 			}
 		}
-		if err := db.Queries.UpdateProfile(ctx.Background(), UpdateProfiles); err != nil {
+		// Update Profile User
+		if err := db.Queries.UpdateAccount(ctx.Background(), updateAccount); err != nil {
 			errChan <- err
 			return
 		}
@@ -62,18 +58,18 @@ func UpdateProfile(user req.UpdateProfile, userIDs int32) (repo.GetUserRow, erro
 
 	// Wait for the result from the goroutine
 	if err := <-errChan; err != nil {
-		return repo.GetUserRow{}, err
+		return repo.GetProfileRow{}, err
 	}
 
 	// Returning data
 	usr, err := GetProfile(userIDs)
 	if err != nil {
-		return repo.GetUserRow{}, err
+		return repo.GetProfileRow{}, err
 	}
 	return usr, nil
 }
 
-func DeleteAccount(userID int32) (string, err) {
+func DeleteAccount(userID int32) (string, error) {
 	if err := db.Queries.DeleteAccount(ctx.Background(), userID); err != nil {
 		return "", err
 	}

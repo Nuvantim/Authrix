@@ -11,7 +11,7 @@ type Register struct {
 	Password string `json:"password"`
 }
 
-type UpdatePassword struct {
+type ResetPassword struct {
 	Code           string `json:"code"`
 	Password       string `json:"password"`
 	RetypePassword string `json:"retype_password"`

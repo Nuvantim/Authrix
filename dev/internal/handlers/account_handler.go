@@ -19,18 +19,18 @@ func GetProfile(c *fiber.Ctx) error {
 	}
 	return c.Status(200).JSON(user)
 }
-func UpdateProfile(c *fiber.Ctx) error {
+func UpdateAccount(c *fiber.Ctx) error {
 	// id := c.Locals("id")
 	var userID int32 = 2
 	if userID == 0 {
 		return c.Status(401).JSON(fiber.Map{"message": "Unauthorized"})
 	}
-	var user request.UpdateProfile
+	var user request.UpdateAccount
 	if err := c.BodyParser(&user); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": err})
 	}
 
-	userUpdate, err := service.UpdateProfile(user, userID)
+	userUpdate, err := service.UpdateAccount(user, userID)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err})
 	}
@@ -38,13 +38,13 @@ func UpdateProfile(c *fiber.Ctx) error {
 	return c.Status(200).JSON(userUpdate)
 }
 
-func DeleteProfile(c *fiber.Ctx) error {
+func DeleteAccount(c *fiber.Ctx) error {
 	// id := c.Locals("id")
 	var userID int32 = 2
 	if userID == 0 {
 		return c.Status(401).JSON(fiber.Map{"message": "Unauthorized"})
 	}
-	msg, err := service.DeleteProfile(userID)
+	msg, err := service.DeleteAccount(userID)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}

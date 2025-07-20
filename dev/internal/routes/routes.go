@@ -7,12 +7,15 @@ import (
 
 func Setup(app *fiber.App) {
 	app.Get("/", handler.Home)
-	app.Post("/auth/send-otp", handler.SendOTP)
-	app.Post("/auth/register", handler.Register)
-	app.Post("auth/login", handler.Login)
-	app.Post("auth/reset-password", handler.ResetPassword)
+	auth := app.Group("/auth")
+	auth.Post("/send-otp", handler.SendOTP)
+	auth.Post("/register", handler.Register)
+	auth.Post("/login", handler.Login)
+	auth.Post("/reset-password", handler.ResetPassword)
 
 	// user
-	app.Get("/account/profile", handler.GetProfile)
-	app.Put("/account/update", handler.UpdateProfile)
+	account := app.Group("/account")
+	account.Get("/profile", handler.GetProfile)
+	account.Put("/update", handler.UpdateAccount)
+	account.Delete("/delete", handler.DeleteAccount)
 }
