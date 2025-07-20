@@ -10,19 +10,21 @@ FROM "public".user_account
 INNER JOIN "public".user_profile ON (user_account.id = user_profile.user_id) WHERE user_account.id = $1 LIMIT 1;
 
 -- name: FindEmail :one
-SELECT id,email,password FROM user_account WHERE email = $1 LIMIT 1;
+SELECT id, email,password FROM user_account WHERE email = $1 LIMIT 1;
 
--- name: UpdateUser :exec
+-- name: UpdateProfile :exec
 WITH updated_account AS (
-    UPDATE user_account SET name = $2 WHERE id = $1 RETURNING id
+    UPDATE user_account SET name = $2 WHERE id= $1
 )
-UPDATE user_profile
-SET age = $3, phone = $4, district = $5, city = $6, country = $7
-WHERE user_id = (SELECT id FROM updated_account);
+UPDATE user_profile SET age = $3, phone = $4, district = $5, city = $6, country = $7
+WHERE user_id = $1;
 
 -- name: UpdatePassword :exec
 UPDATE user_account SET password=$2 WHERE id=$1;
 
 -- name: ResetPassword :exec
 UPDATE user_account SET password=$2 WHERE email=$1;
+
+-- name: DeleteProfile :exec
+DELETE FROM user_account WHERE id = $1;
 

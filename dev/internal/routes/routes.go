@@ -7,10 +7,10 @@ import (
 
 func Setup(app *fiber.App) {
 	app.Get("/", handler.Home)
-	app.Post("/send/otp", handler.SendOTP)
-	app.Post("/register", handler.Register)
-	app.Post("/login", handler.Login)
-	app.Post("/update/password", handler.UpdatePassword)
+	app.Post("/auth/send-otp", handler.SendOTP)
+	app.Post("/auth/register", handler.Register)
+	app.Post("auth/login", handler.Login)
+	app.Post("auth/reset-password", handler.ResetPassword)
 
 	// user
 	app.Get("/account/profile", handler.GetProfile)

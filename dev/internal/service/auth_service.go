@@ -98,7 +98,7 @@ func Login(login req.Login) (string, error) {
 
 }
 
-func UpdatePassword(pass req.UpdatePassword) (string, error) {
+func ResetPassword(pass req.ResetPassword) (string, error) {
 
 	// Check Code Otp
 	otp_search, err := db.Queries.FindOTP(ctx.Background(), pass.Code)
@@ -119,7 +119,7 @@ func UpdatePassword(pass req.UpdatePassword) (string, error) {
 
 	// UpdatePassword
 	psw := utils.HashBycrypt(pass.Password) //Hashing Password
-	updatePassword := repo.UpdatePasswordParams{
+	resetPassword := repo.ResetPasswordParams{
 		Email:    email_search.Email,
 		Password: string(psw),
 	}
@@ -130,7 +130,7 @@ func UpdatePassword(pass req.UpdatePassword) (string, error) {
 	go func() {
 
 		// Try to update the password
-		if err := db.Queries.UpdatePassword(ctx.Background(), updatePassword); err != nil {
+		if err := db.Queries.ResetPassword(ctx.Background(), ResetPassword); err != nil {
 			errChan <- err
 			return
 		}
@@ -147,5 +147,5 @@ func UpdatePassword(pass req.UpdatePassword) (string, error) {
 		return "", err
 	}
 
-	return "Password successfully updated", nil
+	return "Reset password successfully", nil
 }
