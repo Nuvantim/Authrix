@@ -36,7 +36,7 @@ type RolePermission struct {
 }
 
 type UserAccount struct {
-	ID        int32     `json:"id"`
+	ID        int32     `json:"-"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
 	Password  string    `json:"password"`
@@ -45,7 +45,7 @@ type UserAccount struct {
 
 type UserProfile struct {
 	ID        int32       `json:"id"`
-	UserID    int32       `json:"user_id"`
+	UserID    int32       `json:"-"`
 	Age       pgtype.Int4 `json:"age"`
 	Phone     pgtype.Int4 `json:"phone"`
 	District  pgtype.Text `json:"district"`
