@@ -10,21 +10,16 @@ import (
 
 type Querier interface {
 	CreateOTP(ctx context.Context, arg CreateOTPParams) error
-	CreatePermission(ctx context.Context, name string) error
 	CreateUser(ctx context.Context, arg CreateUserParams) error
 	DeleteAccount(ctx context.Context, id int32) error
 	DeleteOTP(ctx context.Context, email string) error
-	DeletePermission(ctx context.Context, id int32) error
 	FindEmail(ctx context.Context, email string) (FindEmailRow, error)
 	FindOTP(ctx context.Context, code string) (FindOTPRow, error)
 	FindOtpByEmail(ctx context.Context, arg FindOtpByEmailParams) (int64, error)
-	GetPermission(ctx context.Context, id int32) (GetPermissionRow, error)
 	GetProfile(ctx context.Context, id int32) (GetProfileRow, error)
-	ListPermission(ctx context.Context) ([]Permission, error)
 	ResetPassword(ctx context.Context, arg ResetPasswordParams) error
 	UpdateAccount(ctx context.Context, arg UpdateAccountParams) error
 	UpdatePassword(ctx context.Context, arg UpdatePasswordParams) error
-	UpdatePermission(ctx context.Context, arg UpdatePermissionParams) error
 }
 
 var _ Querier = (*Queries)(nil)

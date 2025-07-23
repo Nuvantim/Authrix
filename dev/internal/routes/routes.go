@@ -18,4 +18,13 @@ func Setup(app *fiber.App) {
 	account.Get("/profile", handler.GetProfile)
 	account.Put("/update", handler.UpdateAccount)
 	account.Delete("/delete", handler.DeleteAccount)
+
+	// permission
+	permission := app.Group("/permission")
+	permission.Get("/",handler)
+	permission.Get("/{id}",handler)
+	permission.Post("/store",handler)
+	permission.Put("/update/{id}",handler)
+	permission.Delete("/delete/{id}",handler)
+	
 }
