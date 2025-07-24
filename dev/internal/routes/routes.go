@@ -21,10 +21,18 @@ func Setup(app *fiber.App) {
 
 	// permission
 	permission := app.Group("/permission")
-	permission.Get("/",handler)
-	permission.Get("/{id}",handler)
-	permission.Post("/store",handler)
-	permission.Put("/update/{id}",handler)
-	permission.Delete("/delete/{id}",handler)
-	
+	permission.Get("/", handler.ListPermission)
+	permission.Get("/{id}", handler.GetPermission)
+	permission.Post("/store", handler.CreatePermission)
+	permission.Put("/update/{id}", handler.UpdatePermission)
+	permission.Delete("/delete/{id}", handler.DeletePermission)
+
+	// role
+	role := app.Group("/Role")
+	role.Get("/", handler.ListRole)
+	role.Get("/{id}", handler.GetRole)
+	role.Post("/store", handler.CreateRole)
+	role.Put("/update/{id}", handler.UpdateRole)
+	role.Delete("/delete/{id}", handler.DeleteRole)
+
 }

@@ -6,61 +6,63 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func GetPermission(c *fiber.Ctx) error {
-	id, err := c.ParamsInt("id")
-	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
-	}
-	permission, err := service.GetPermission(int32(id))
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
-	}
-	return c.Status(200).JSON(permission)
-}
-
-func ListPermission(c *fiber.Ctx) error {
-	permission, err := service.ListPermission()
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
-	}
-	return c.Status(200).JSON(permission)
-}
-
-func CreatePermission(c *fiber.Ctx) error {
-	var data request.Permission
+func CreateRole(c *fiber.Ctx) error {
+	var data request.Role
 	if err := c.BodyParser(&data); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 	}
-	permission, err := service.CreatePermission(data)
+	role, err := service.CreateRole(data)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
-	return c.Status(200).JSON(permission)
+	return c.Status(200).JSON(role)
 }
-
-func UpdatePermission(c *fiber.Ctx) error {
-	var data request.Permission
+func GetRole(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 	}
+	role, err := service.GetRole(int32(id))
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+	return c.Status(200).JSON(role)
+}
+func ListRole(c *fiber.Ctx) error {
+	role, err := service.ListRole()
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+	return c.Status(200).JSON(role)
+}
+func UpdateRole(c *fiber.Ctx) error {
+	var data request.Role
+
+	id, err := c.ParamsInt("id")
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
+	}
+
 	if err := c.BodyParser(&data); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 	}
-	permission, err := service.UpdatePermission(data, int32(id))
+
+	role, err := service.UpdateRole(data, int32(id))
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
-	return c.Status(200).JSON(permission)
+
+	return c.Status(200).JSON(role)
+
 }
-func DeletePermission(c *fiber.Ctx) error {
+func DeleteRole(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 	}
-	message, err := service.DeletePermission(int32(id))
+	msg, err := service.DeleteRole(int32(id))
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
-	return c.Status(200).JSON(fiber.Map{"message": message})
+	return c.Status(200).JSON(fiber.Map{"message": msg})
 }
