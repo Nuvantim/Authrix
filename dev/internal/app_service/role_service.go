@@ -2,8 +2,8 @@ package service
 
 import (
 	db "api/database"
+	req "api/internal/app_request"
 	repo "api/internal/repository"
-	req "api/internal/request"
 
 	ctx "context"
 	"errors"
@@ -24,10 +24,29 @@ func ListRole() ([]repo.Role, error) {
 	return role, nil
 }
 func CreateRole(data req.Role) ([]repo.Role, error) {
-	if err := db.Queries.CreateRole(ctx.Background(), data.Name); err != nil {
+	// VerfyPermission
+	permission_id, err := db.Queries.VerifyPermission(ctx.Background(), data.PermissionID)
+	if err != nil {
+		return []repo.Role{}, errors.New("Permission not found")
+	}
+
+	// Create Role
+	role_id, err := db.Queries.CreateRole(ctx.Background(), data.Name)
+	if err != nil {
 		return []repo.Role{}, err
 	}
-	var role, err = ListRole()
+
+	// Params data Role_Permission
+	role_permission := repo.AddPermissionRoleParams{
+		IDRole:  role_id,
+		Column2: permission_id,
+	}
+
+	// Create Role_Permission
+	if err := db.Queries.AddPermissionRole(ctx.Background(), role_permission); err != nil {
+		return []repo.Role{}, err
+	}
+	role, err := ListRole()
 	if err != nil {
 		return []repo.Role{}, err
 	}

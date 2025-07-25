@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"api/internal/request"
-	"api/internal/service"
+	"api/internal/app_request"
+	"api/internal/app_service"
 	"github.com/gofiber/fiber/v2"
 )
 
