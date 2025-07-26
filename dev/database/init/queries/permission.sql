@@ -14,8 +14,18 @@ UPDATE permission SET name=$2 WHERE id=$1;
 DELETE FROM permission WHERE id=$1;
 
 -- name: VerifyPermission :many
-SELECT DISTINCT id FROM permission WHERE id = ANY(@ids:: int[]);
+SELECT DISTINCT id FROM permission WHERE id = ANY($1:: int[]);
 
 -- name: AddPermissionRole :exec
 INSERT INTO role_permission (id_role, id_permission) SELECT $1 AS role_id_params,
 unnested_permission_id FROM UNNEST($2::int[]) AS unnested_permission_id;
+
+-- name: UpdatePermissionRole :exec
+INSERT INTO role_permission (id_role, id_permission) SELECT $1 AS role_id_params, 
+unnested_permission_id FROM UNNEST($2::int[]) AS unnested_permission_id 
+ON CONFLICT (id_role, id_permission) DO NOTHING;
+
+-- name: DeletePermissionRole :exec
+DELETE FROM role_permission WHERE id_role = $1;
+
+

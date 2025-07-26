@@ -2,8 +2,8 @@ package service
 
 import (
 	db "api/database"
-	req "api/internal/app_request"
-	repo "api/internal/repository"
+	repo "api/internal/app/repository"
+	req "api/internal/app/request"
 	"api/pkgs/utils"
 
 	ctx "context"

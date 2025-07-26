@@ -2,8 +2,8 @@ package service
 
 import (
 	db "api/database"
-	req "api/internal/app_request"
-	repo "api/internal/repository"
+	repo "api/internal/app/repository"
+	req "api/internal/app/request"
 
 	ctx "context"
 	"errors"
@@ -48,6 +48,7 @@ func UpdatePermission(data req.Permission, id int32) (repo.GetPermissionRow, err
 	}
 	return permission, nil
 }
+
 func DeletePermission(id int32) (string, error) {
 	if err := db.Queries.DeletePermission(ctx.Background(), id); err != nil {
 		return "", err

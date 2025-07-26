@@ -6,7 +6,7 @@ import (
 	"sync"
 
 	"api/config"
-	"api/internal/repository"
+	"api/internal/app/repository"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -39,6 +39,6 @@ func InitDB() {
 func CloseDB() {
 	log.Println("Disconnection Database")
 	if DB != nil {
-		DB.Close()
+		defer DB.Close()
 	}
 }

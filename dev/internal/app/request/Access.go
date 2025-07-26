@@ -5,6 +5,6 @@ type Permission struct {
 }
 
 type Role struct {
-	Name         string  "json:name"
-	PermissionID []int32 "json:permission_id"
+	Name         string  `json:"name"`
+	PermissionID []int32 `json:"permission_id"`
 }

@@ -6,7 +6,7 @@ sql:
     gen:
       go:
         package: "repository"
-        out: "internal/repository"
+        out: "internal/app/repository"
         sql_package: "pgx/v5"
         emit_interface: true
         emit_exact_table_names: false

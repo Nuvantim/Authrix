@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"api/internal/app_handlers"
+	"api/internal/app/handlers"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -28,7 +28,7 @@ func Setup(app *fiber.App) {
 	permission.Delete("/delete/{id}", handler.DeletePermission)
 
 	// role
-	role := app.Group("/Role")
+	role := app.Group("/role")
 	role.Get("/", handler.ListRole)
 	role.Get("/{id}", handler.GetRole)
 	role.Post("/store", handler.CreateRole)
