@@ -8,6 +8,7 @@ import (
 
 	ctx "context"
 	"errors"
+	str "strings"
 )
 
 func GetProfile(userID int32) (repo.GetProfileRow, error) {
@@ -36,7 +37,7 @@ func UpdateAccount(user req.UpdateAccount, userIDs int32) (repo.GetProfileRow, e
 	// Run user creation and OTP deletion in a separate goroutine
 	go func() {
 		// Update password is available
-		if user.Password != "" {
+		if str.TrimSpace(user.Password) != "" {
 			psw := utils.HashBycrypt(user.Password)
 			passUpdate := repo.UpdatePasswordParams{
 				ID:       userIDs,

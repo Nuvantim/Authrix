@@ -11,3 +11,9 @@ type UpdateAccount struct {
 	City     pgtype.Text `json:"city"`
 	Country  pgtype.Text `json:"country"`
 }
+
+type UpdateClient struct {
+	Name string `json:"name"`
+	Email string `json:"email"`
+	Password string `json:"Password"`
+}
