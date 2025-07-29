@@ -21,9 +21,9 @@ INSERT INTO role_permission (id_role, id_permission) SELECT $1 AS role_id_params
 unnested_permission_id FROM UNNEST($2::int[]) AS unnested_permission_id;
 
 -- name: UpdatePermissionRole :exec
-INSERT INTO role_permission (id_role, id_permission) SELECT $1 AS role_id_params, 
-unnested_permission_id FROM UNNEST($2::int[]) AS unnested_permission_id 
-ON CONFLICT (id_role, id_permission) DO NOTHING;
+DELETE FROM role_permission
+WHERE id_role = $1
+AND id_permission NOT IN (SELECT unnested_permission_id FROM UNNEST($2::int[]) AS unnested_permission_id);
 
 -- name: DeletePermissionRole :exec
 DELETE FROM role_permission WHERE id_role = $1;
