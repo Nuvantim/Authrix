@@ -37,16 +37,13 @@ func ListRole(c *fiber.Ctx) error {
 }
 func UpdateRole(c *fiber.Ctx) error {
 	var data request.Role
-
 	id, err := c.ParamsInt("id")
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 	}
-
 	if err := c.BodyParser(&data); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 	}
-
 	role, err := service.UpdateRole(data, int32(id))
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})

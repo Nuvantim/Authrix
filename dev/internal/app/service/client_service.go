@@ -23,16 +23,6 @@ func GetClient(id int32) (repo.GetClientRow, error) {
 	if err != nil {
 		return repo.GetClientRow{}, err
 	}
-	// Get Client Role
-	role_id,err := db.Queries.GetRoleClient(ctx.Background(), id)
-	if err != nil{
-		return repo.GetClientRow{},
-	}
-	// Get Role
-	roles, err := db.Queries.PermissionRole(ctx.Background(),role_id)
-	if err != nil{
-		return repo.GetClientRow{},
-	}
 	return data, nil
 }
 
@@ -54,18 +44,19 @@ func UpdateClient(Id int32, client req.UpdateClient) (repo.UserAccount, error) {
 		return repo.UserAccount{}, err
 	}
 
-	role,err := db.Queries.VerifyRole(ctx.Background(), client.Role)
+	// verify role
+	role, err := db.Queries.VerifyRole(ctx.Background(), client.Role)
 	if err != nil {
-		return repo.UserAccount{},err
+		return repo.UserAccount{}, err
 	}
 	// update client role
 	var client_role = repo.UpdateRoleClientParams{
-		IDUser : Id,
-		Column2 : role,
+		IDUser:  Id,
+		Column2: role,
 	}
 
-	if err := db.Queries.UpdateRoleClient(ctx.Background(), client_role); err != nil{
-		return repo.UserAccount{},err
+	if err := db.Queries.UpdateRoleClient(ctx.Background(), client_role); err != nil {
+		return repo.UserAccount{}, err
 	}
 
 	return data, nil

@@ -22,8 +22,5 @@ DELETE FROM user_role
 WHERE id_user = $1
 AND id_role NOT IN (SELECT unnested_role_id FROM UNNEST($2::int[]) AS unnested_role_id);
 
--- name: GetRoleClient
-
-
 -- name: DeleteRole :exec
 DELETE FROM role WHERE id = $1;

@@ -21,14 +21,21 @@ INSERT INTO role_permission (id_role, id_permission) SELECT $1 AS role_id_params
 unnested_permission_id FROM UNNEST($2::int[]) AS unnested_permission_id;
 
 -- name: UpdatePermissionRole :exec
-DELETE FROM role_permission
-WHERE id_role = $1
-AND id_permission NOT IN (SELECT unnested_permission_id FROM UNNEST($2::int[]) AS unnested_permission_id);
+WITH delete_permission AS (DELETE FROM role_permission
+WHERE id_role = $1 
+)
+INSERT INTO role_permission (id_role, id_permission) SELECT $1 AS role_id_params, 
+unnested_permission_id FROM UNNEST($2::int[]) AS unnested_permission_id 
+ON CONFLICT (id_role, id_permission) DO NOTHING;
 
--- name: GetPermissionRole :one
+-- name: GetPermissionRole :many
 SELECT
-    r.name AS role_name,
-    STRING_AGG(p.name, ', ') AS permissions_list
+    CASE
+        WHEN ROW_NUMBER() OVER (PARTITION BY r.id ORDER BY p.name) = 1 THEN r.name
+        ELSE NULL
+    END AS role_name,
+    p.name AS permission_name,
+    p.id AS permission_id
 FROM
     "public"."role" AS r
 JOIN
@@ -36,11 +43,9 @@ JOIN
 JOIN
     "public".permission AS p ON rp.id_permission = p.id
 WHERE
-    r.id IN ($1::int[])
-GROUP BY
-    r.id, r.name
+    r.id = $1
 ORDER BY
-    r.name;
+    r.name, p.name;
 
 -- name: ListPermissionRole :many
 SELECT
@@ -65,3 +70,17 @@ ORDER BY
 DELETE FROM role_permission WHERE id_role = $1;
 
 
+-- SELECT
+--     STRING_AGG(p.name, ', ') AS permissions_list
+-- FROM
+--     "public"."role" AS r
+-- JOIN
+--     "public".role_permission AS rp ON r.id = rp.id_role
+-- JOIN
+--     "public".permission AS p ON rp.id_permission = p.id
+-- WHERE
+--     r.id = $1
+-- GROUP BY
+--     r.id, r.name
+-- ORDER BY
+--     r.name;

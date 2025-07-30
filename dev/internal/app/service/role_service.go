@@ -9,10 +9,10 @@ import (
 	"errors"
 )
 
-func GetRole(id int32) (repo.GetRoleRow, error) {
-	role, err := db.Queries.GetRole(ctx.Background(), id)
+func GetRole(id int32) (repo.GetPermissionRoleRow, error) {
+	role, err := db.Queries.GetPermissionRole(ctx.Background(), id)
 	if err != nil {
-		return repo.GetRoleRow{}, errors.New("Role Not Found")
+		return repo.GetPermissionRoleRow{}, err
 	}
 	return role, nil
 }
@@ -24,6 +24,7 @@ func ListRole() ([]repo.Role, error) {
 	}
 	return role, nil
 }
+
 func CreateRole(data req.Role) ([]repo.Role, error) {
 	// Create Role
 	role_id, err := db.Queries.CreateRole(ctx.Background(), data.Name)
@@ -59,7 +60,7 @@ func CreateRole(data req.Role) ([]repo.Role, error) {
 	return role, nil
 }
 
-func UpdateRole(data req.Role, id int32) (repo.GetRoleRow, error) {
+func UpdateRole(data req.Role, id int32) (repo.GetPermissionRoleRow, error) {
 	// Update Role
 	var role_data = repo.UpdateRoleParams{
 		ID:   id,
@@ -67,7 +68,7 @@ func UpdateRole(data req.Role, id int32) (repo.GetRoleRow, error) {
 	}
 
 	if err := db.Queries.UpdateRole(ctx.Background(), role_data); err != nil {
-		return repo.GetRoleRow{}, err
+		return repo.GetPermissionRoleRow{}, err
 	}
 	// Check lenght PermissionID
 	var check int = len(data.PermissionID)
@@ -80,7 +81,7 @@ func UpdateRole(data req.Role, id int32) (repo.GetRoleRow, error) {
 		}
 
 		if err := db.Queries.UpdatePermissionRole(ctx.Background(), role_permission); err != nil {
-			return repo.GetRoleRow{}, err
+			return repo.GetPermissionRoleRow{}, err
 		}
 	} else {
 		_ = db.Queries.DeletePermissionRole(ctx.Background(), id)
@@ -88,10 +89,11 @@ func UpdateRole(data req.Role, id int32) (repo.GetRoleRow, error) {
 
 	var role, err = GetRole(id)
 	if err != nil {
-		return repo.GetRoleRow{}, err
+		return repo.GetPermissionRoleRow{}, err
 	}
 	return role, nil
 }
+
 func DeleteRole(id int32) (string, error) {
 	if err := db.Queries.DeleteRole(ctx.Background(), id); err != nil {
 		return "", err

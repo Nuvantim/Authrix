@@ -30,12 +30,11 @@ func UpdateClient(c *fiber.Ctx) error {
 	if err := c.BodyParser(&data); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 	}
-
-	client,role err := service.UpdateClient(int32(id), data)
+	client, err := service.UpdateClient(int32(id), data)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
-	return c.Status(200).JSON("client":client,"role":role)
+	return c.Status(200).JSON(client)
 
 }
 
