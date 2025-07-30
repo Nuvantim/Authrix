@@ -16,6 +16,8 @@ func GetProfile(userID int32) (repo.GetProfileRow, error) {
 	if err != nil {
 		return repo.GetProfileRow{}, errors.New("Account not found !")
 	}
+	data.UserAccount.ID = 0
+	data.UserProfile.UserID = 0
 	return data, nil
 }
 

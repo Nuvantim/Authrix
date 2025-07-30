@@ -21,11 +21,10 @@ func Setup(app *fiber.App) {
 
 	// client
 	client := app.Group("/client")
-	client.Get("/",handler.ListClient)
-	client.Get("/{id}",handler.GetClient)
-	client.Put("/update/{id}",handler.UpdateClient)
-	client.Delete("/delete/{id}",handler.DeleteClient)
-	
+	client.Get("/", handler.ListClient)
+	client.Get("/{id}", handler.GetClient)
+	client.Put("/update/{id}", handler.UpdateClient)
+	client.Delete("/delete/{id}", handler.DeleteClient)
 
 	// permission
 	permission := app.Group("/permission")

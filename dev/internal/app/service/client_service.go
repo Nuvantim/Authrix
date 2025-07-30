@@ -10,46 +10,71 @@ import (
 	str "strings"
 )
 
-func ListClient()([]repo.ListClientRow, error){
+func ListClient() ([]repo.ListClientRow, error) {
 	data, err := db.Queries.ListClient(ctx.Background())
-	if err != nil{
+	if err != nil {
 		return []repo.ListClientRow{}, err
 	}
-	return data,nil
+	return data, nil
 }
 
-func GetClient(id int32)(repo.GetClientRow, error){
+func GetClient(id int32) (repo.GetClientRow, error) {
 	data, err := db.Queries.GetClient(ctx.Background(), id)
-	if err != nil{
+	if err != nil {
 		return repo.GetClientRow{}, err
 	}
-	return data,nil
+	// Get Client Role
+	role_id,err := db.Queries.GetRoleClient(ctx.Background(), id)
+	if err != nil{
+		return repo.GetClientRow{},
+	}
+	// Get Role
+	roles, err := db.Queries.PermissionRole(ctx.Background(),role_id)
+	if err != nil{
+		return repo.GetClientRow{},
+	}
+	return data, nil
 }
 
-func UpdateClient(Id int32, client req.UpdateClient)(repo.UserAccount, error){
+func UpdateClient(Id int32, client req.UpdateClient) (repo.UserAccount, error) {
 	var update_data = repo.UpdateClientParams{
-		ID : Id,
-		Name : client.Name,
-		Email : client.Email,
+		ID:    Id,
+		Name:  client.Name,
+		Email: client.Email,
 	}
 
 	if str.TrimSpace(client.Password) != "" {
-			psw := utils.HashBycrypt(client.Password)
-			update_data.Password = string(psw) 
+		psw := utils.HashBycrypt(client.Password)
+		update_data.Password = string(psw)
 	}
 
-	data, err := db.Queries.UpdateClient(ctx.Background(), update_data) 
-	if err != nil{
+	// Update client data
+	data, err := db.Queries.UpdateClient(ctx.Background(), update_data)
+	if err != nil {
 		return repo.UserAccount{}, err
+	}
+
+	role,err := db.Queries.VerifyRole(ctx.Background(), client.Role)
+	if err != nil {
+		return repo.UserAccount{},err
+	}
+	// update client role
+	var client_role = repo.UpdateRoleClientParams{
+		IDUser : Id,
+		Column2 : role,
+	}
+
+	if err := db.Queries.UpdateRoleClient(ctx.Background(), client_role); err != nil{
+		return repo.UserAccount{},err
 	}
 
 	return data, nil
 
 }
 
-func DeleteClient(id int32)(string,error){
-	if err := db.Queries.DeleteClient(ctx.Background(),id); err != nil{
+func DeleteClient(id int32) (string, error) {
+	if err := db.Queries.DeleteClient(ctx.Background(), id); err != nil {
 		return "", err
 	}
-	return "Client Deleted",nil
+	return "Client Deleted", nil
 }

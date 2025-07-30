@@ -25,6 +25,42 @@ DELETE FROM role_permission
 WHERE id_role = $1
 AND id_permission NOT IN (SELECT unnested_permission_id FROM UNNEST($2::int[]) AS unnested_permission_id);
 
+-- name: GetPermissionRole :one
+SELECT
+    r.name AS role_name,
+    STRING_AGG(p.name, ', ') AS permissions_list
+FROM
+    "public"."role" AS r
+JOIN
+    "public".role_permission AS rp ON r.id = rp.id_role
+JOIN
+    "public".permission AS p ON rp.id_permission = p.id
+WHERE
+    r.id IN ($1::int[])
+GROUP BY
+    r.id, r.name
+ORDER BY
+    r.name;
+
+-- name: ListPermissionRole :many
+SELECT
+    CASE
+        WHEN ROW_NUMBER() OVER (PARTITION BY r.id ORDER BY p.name) = 1 THEN r.name
+        ELSE NULL
+    END AS role_name,
+    p.name AS permission_name,
+    p.id AS permission_id
+FROM
+    "public"."role" AS r
+JOIN
+    "public".role_permission AS rp ON r.id = rp.id_role
+JOIN
+    "public".permission AS p ON rp.id_permission = p.id
+WHERE
+    r.id IN ($1::int[])
+ORDER BY
+    r.name, p.name;
+
 -- name: DeletePermissionRole :exec
 DELETE FROM role_permission WHERE id_role = $1;
 
