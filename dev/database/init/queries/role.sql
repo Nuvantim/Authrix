@@ -21,7 +21,7 @@ ORDER BY
     r.name;
 
 -- name: UpdateRole :exec
-UPDATE role SET name=$2 WHERE id = $1;
+UPDATE role SET name = $2 WHERE id = $1;
 
 -- name: VerifyRole :many
 SELECT DISTINCT id FROM role WHERE id = ANY($1:: int[]);
@@ -38,24 +38,8 @@ WITH delete_permission AS (
 INSERT INTO role_permission (id_role, id_permission)
 SELECT $1,UNNEST($2::int[]);
 
--- name: GetPermissionRole :one
-SELECT
-    CASE
-        WHEN ROW_NUMBER() OVER (PARTITION BY r.id ORDER BY p.name) = 1 THEN r.name
-        ELSE NULL
-    END AS role_name,
-    p.name AS permission_name,
-    p.id AS permission_id
-FROM
-    "public"."role" AS r
-JOIN
-    "public".role_permission AS rp ON r.id = rp.id_role
-JOIN
-    "public".permission AS p ON rp.id_permission = p.id
-WHERE
-    r.id = $1
-ORDER BY
-    r.name, p.name;
+-- name: GetPermissionRole :many
+SELECT id,name FROM permission WHERE id IN (SELECT id_permission FROM role_permission WHERE id_role = $1);
 
 -- name: ListPermissionRole :many
 SELECT

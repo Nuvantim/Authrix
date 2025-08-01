@@ -12,6 +12,14 @@ type Role struct {
 }
 
 type GetRole struct {
-	Role       repo.GetRoleRow `json:"role"`
-	Permission string          `json:"permission"`
+	ID         int32                       `json:"id"`
+	Name       string                      `json:"name"`
+	Permission []repo.GetPermissionRoleRow `json:"permission"`
+}
+
+type GetClient struct {
+	ID    int32                   `json:"id"`
+	Name  string                  `json:"name"`
+	Email string                  `json:"email"`
+	Role  []repo.GetRoleClientRow `json:"permission"`
 }

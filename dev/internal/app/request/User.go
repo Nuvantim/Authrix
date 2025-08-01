@@ -15,6 +15,6 @@ type UpdateAccount struct {
 type UpdateClient struct {
 	Name     string  `json:"name"`
 	Email    string  `json:"email"`
-	Password string  `json:"Password"`
+	Password string  `json:"password"`
 	Role     []int32 `json:"role_id"`
 }

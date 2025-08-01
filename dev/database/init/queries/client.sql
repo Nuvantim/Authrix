@@ -29,7 +29,7 @@ UPDATE user_account SET
 WHERE id = $1 RETURNING *;
 
 -- name: GetRoleClient :many
-SELECT id_role FROM user_role WHERE id_user = $1;
+SELECT id,name FROM role WHERE id IN (SELECT id_role FROM user_role WHERE id_user = $1);
 
 -- name: DeleteClient :exec
 DELETE FROM user_account WHERE id = $1;

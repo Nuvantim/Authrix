@@ -22,9 +22,9 @@ func Setup(app *fiber.App) {
 	// client
 	client := app.Group("/client")
 	client.Get("/", handler.ListClient)
-	client.Get("/{id}", handler.GetClient)
-	client.Put("/update/{id}", handler.UpdateClient)
-	client.Delete("/delete/{id}", handler.DeleteClient)
+	client.Get("/:id", handler.GetClient)
+	client.Put("/update/:id", handler.UpdateClient)
+	client.Delete("/delete/:id", handler.DeleteClient)
 
 	// permission
 	permission := app.Group("/permission")
@@ -40,6 +40,6 @@ func Setup(app *fiber.App) {
 	role.Get("/:id", handler.GetRole)
 	role.Post("/store", handler.CreateRole)
 	role.Put("/update/:id", handler.UpdateRole)
-	role.Delete("/delete/{id}", handler.DeleteRole)
+	role.Delete("/delete/:id", handler.DeleteRole)
 
 }

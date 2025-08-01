@@ -9,12 +9,21 @@ import (
 	"errors"
 )
 
-func GetRole(id int32) (repo.GetPermissionRoleRow, error) {
-	role, err := db.Queries.GetPermissionRole(ctx.Background(), id)
+func GetRole(id int32) (req.GetRole, error) {
+	role, err := db.Queries.GetRole(ctx.Background(), id)
 	if err != nil {
-		return repo.GetPermissionRoleRow{}, err
+		return req.GetRole{}, err
 	}
-	return role, nil
+	permission, err := db.Queries.GetPermissionRole(ctx.Background(), id)
+	if err != nil {
+		return req.GetRole{}, err
+	}
+	var data = req.GetRole{
+		ID:         role.ID,
+		Name:       role.Name,
+		Permission: permission,
+	}
+	return data, nil
 }
 
 func ListRole() ([]repo.ListRoleRow, error) {
@@ -61,7 +70,7 @@ func CreateRole(data req.Role) ([]repo.ListRoleRow, error) {
 	return role, nil
 }
 
-func UpdateRole(data req.Role, id int32) (repo.GetPermissionRoleRow, error) {
+func UpdateRole(data req.Role, id int32) (req.GetRole, error) {
 	// Update Role
 	var role_data = repo.UpdateRoleParams{
 		ID:   id,
@@ -69,13 +78,13 @@ func UpdateRole(data req.Role, id int32) (repo.GetPermissionRoleRow, error) {
 	}
 
 	if err := db.Queries.UpdateRole(ctx.Background(), role_data); err != nil {
-		return repo.GetPermissionRoleRow{}, err
+		return req.GetRole{}, err
 	}
 
 	// Verify Role
-	role_id,err := db.Queries.VerifyRole(ctx.Background(), data.PermissionID)
-	if err != nil{
-		return repo.GetPermissionRoleRow{}, err
+	role_id, err := db.Queries.VerifyRole(ctx.Background(), data.PermissionID)
+	if err != nil {
+		return req.GetRole{}, err
 	}
 	// Check lenght PermissionID
 	var check int = len(role_id)
@@ -88,7 +97,7 @@ func UpdateRole(data req.Role, id int32) (repo.GetPermissionRoleRow, error) {
 		}
 
 		if err := db.Queries.UpdatePermissionRole(ctx.Background(), role_permission); err != nil {
-			return repo.GetPermissionRoleRow{}, err
+			return req.GetRole{}, err
 		}
 	} else {
 		_ = db.Queries.DeletePermissionRole(ctx.Background(), id)
@@ -96,7 +105,7 @@ func UpdateRole(data req.Role, id int32) (repo.GetPermissionRoleRow, error) {
 
 	roles, err := GetRole(id)
 	if err != nil {
-		return repo.GetPermissionRoleRow{}, err
+		return req.GetRole{}, err
 	}
 	return roles, nil
 }
