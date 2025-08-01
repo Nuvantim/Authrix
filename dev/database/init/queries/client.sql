@@ -3,15 +3,15 @@ SELECT
     u.id,
     u.name,
     u.email,
-    ARRAY_AGG(r.name ORDER BY r.name) AS role
+    ARRAY_AGG(r.name ORDER BY r.name) FILTER (WHERE r.name IS NOT NULL) AS role
 FROM
     public.user_account AS u
-JOIN
+LEFT JOIN
     public.user_role AS ur ON u.id = ur.id_user
-JOIN
+LEFT JOIN
     public.role AS r ON ur.id_role = r.id
 GROUP BY
-    u.id, u.name,u.email
+    u.id, u.name, u.email
 ORDER BY
     u.name;
 
