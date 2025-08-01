@@ -1,5 +1,19 @@
 -- name: ListClient :many
-SELECT id,name,email FROM user_account;
+SELECT
+    u.id,
+    u.name,
+    u.email,
+    ARRAY_AGG(r.name ORDER BY r.name) AS role
+FROM
+    public.user_account AS u
+JOIN
+    public.user_role AS ur ON u.id = ur.id_user
+JOIN
+    public.role AS r ON ur.id_role = r.id
+GROUP BY
+    u.id, u.name,u.email
+ORDER BY
+    u.name;
 
 -- name: GetClient :one
 SELECT id,name,email FROM user_account WHERE id = $1;
@@ -25,6 +39,15 @@ INSERT INTO user_role (id_user, id_role) SELECT $1 AS user_id_params,
 unnested_role_id FROM UNNEST($2::int[]) AS unnested_role_id;
 
 -- name: UpdateRoleClient :exec
-DELETE FROM user_role
-WHERE id_user = $1
-AND id_role NOT IN (SELECT unnested_role_id FROM UNNEST($2::int[]) AS unnested_role_id);
+WITH delete_role AS (
+  DELETE FROM user_role
+  WHERE id_user = $1
+  RETURNING *
+)
+INSERT INTO user_role (id_user, id_rol)
+SELECT $1 AS user_id_params, unnested_role_id
+FROM UNNEST($2::int[]) AS unnested_role_id
+ON CONFLICT (id_user, id_role) DO NOTHING;
+
+-- name: DeleteRoleClient :exec
+DELETE FROM user_role WHERE user_role = $1;
