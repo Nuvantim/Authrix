@@ -34,14 +34,11 @@ unnested_permission_id FROM UNNEST($2::int[]) AS unnested_permission_id;
 WITH delete_permission AS (
   DELETE FROM role_permission
   WHERE id_role = $1
-  RETURNING *
 )
 INSERT INTO role_permission (id_role, id_permission)
-SELECT $1 AS role_id_params, unnested_permission_id
-FROM UNNEST($2::int[]) AS unnested_permission_id
-ON CONFLICT (id_role, id_permission) DO NOTHING;
+SELECT $1,UNNEST($2::int[]);
 
--- name: GetPermissionRole :many
+-- name: GetPermissionRole :one
 SELECT
     CASE
         WHEN ROW_NUMBER() OVER (PARTITION BY r.id ORDER BY p.name) = 1 THEN r.name

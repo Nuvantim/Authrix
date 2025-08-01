@@ -24,8 +24,7 @@ CREATE  TABLE "public"."role" (
 
 CREATE  TABLE "public".role_permission ( 
 	id_role              integer  NOT NULL  ,
-	id_permission        integer  NOT NULL  ,
-	CONSTRAINT unq_role_id UNIQUE ( id_role, id_permission ) 
+	id_permission        integer  NOT NULL  
  );
 
 CREATE  TABLE "public".user_account ( 
@@ -52,8 +51,7 @@ CREATE  TABLE "public".user_profile (
 
 CREATE  TABLE "public".user_role ( 
 	id_user              integer  NOT NULL  ,
-	id_role              integer  NOT NULL  ,
-	CONSTRAINT unq_user_id UNIQUE ( id_user, id_role ) 
+	id_role              integer  NOT NULL  
  );
 
 ALTER TABLE "public".role_permission ADD CONSTRAINT fk_role_permission_permission FOREIGN KEY ( id_permission ) REFERENCES "public".permission( id ) ON DELETE CASCADE;

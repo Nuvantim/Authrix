@@ -41,13 +41,10 @@ unnested_role_id FROM UNNEST($2::int[]) AS unnested_role_id;
 -- name: UpdateRoleClient :exec
 WITH delete_role AS (
   DELETE FROM user_role
-  WHERE id_user = $1
-  RETURNING *
+  WHERE id_user = $1 
 )
 INSERT INTO user_role (id_user, id_rol)
-SELECT $1 AS user_id_params, unnested_role_id
-FROM UNNEST($2::int[]) AS unnested_role_id
-ON CONFLICT (id_user, id_role) DO NOTHING;
+SELECT $1, UNNEST($2::int[]);
 
 -- name: DeleteRoleClient :exec
-DELETE FROM user_role WHERE user_role = $1;
+DELETE FROM user_role WHERE id_user = $1;

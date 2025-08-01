@@ -18,6 +18,7 @@ func GetProfile(userID int32) (repo.GetProfileRow, error) {
 	}
 	data.UserAccount.ID = 0
 	data.UserProfile.UserID = 0
+	data.UserAccount.Password = ""
 	return data, nil
 }
 
