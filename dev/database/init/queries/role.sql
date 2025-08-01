@@ -11,9 +11,9 @@ SELECT
     ARRAY_AGG(p.name ORDER BY p.name) AS permissions
 FROM
     public.role AS r
-JOIN
+LEFT JOIN
     public.role_permission AS rp ON r.id = rp.id_role
-JOIN
+LEFT JOIN
     public.permission AS p ON rp.id_permission = p.id
 GROUP BY
     r.id, r.name
