@@ -46,5 +46,32 @@ WITH delete_role AS (
 INSERT INTO user_role (id_user, id_rol)
 SELECT $1, UNNEST($2::int[]);
 
+--name: AnyRoleClient :many
+SELECT
+    r.id,
+    r.name,
+    COALESCE(
+        jsonb_agg(
+            DISTINCT jsonb_build_object(
+                'id', p.id,
+                'name', p.name
+            )
+            ORDER BY p.name
+        ) FILTER (WHERE p.id IS NOT NULL),
+        '[]'
+    ) AS permissions
+FROM
+    public.role AS r
+LEFT JOIN
+    public.role_permission AS rp ON r.id = rp.id_role
+LEFT JOIN
+    public.permission AS p ON rp.id_permission = p.id
+GROUP BY
+    r.id, r.name
+WHERE
+    id IN (SELECT id_role FROM user_role WHERE id_user = $1)
+ORDER BY
+    r.name;
+
 -- name: DeleteRoleClient :exec
 DELETE FROM user_role WHERE id_user = $1;
