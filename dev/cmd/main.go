@@ -13,6 +13,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Generate RS512
+	// if err := ensureRSAKeysExist("private.pem", "public.pem", 4096); err != nil {
+	// 	log.Fatal("RSA key failed to generate:", err)
+	// }
+
 	// Start Server
 	app := http.ServerGo()
 

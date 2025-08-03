@@ -18,15 +18,12 @@ ORDER BY
 -- name: GetClient :one
 SELECT id,name,email FROM user_account WHERE id = $1;
 
--- name: UpdateClient :one
+-- name: UpdateClient :exec
 UPDATE user_account SET 
 	name = $2, 
-	email = $3, 
-	password = CASE
-		WHEN $4 IS NULL OR TRIM($4) = '' THEN password
-		ELSE $4
-	END
-WHERE id = $1 RETURNING *;
+	email = COALESCE(NULLIF(TRIM($3::varchar),''), email), 
+	password = COALESCE(NULLIF(TRIM($4::varchar),''), password)
+WHERE id = $1;
 
 -- name: GetRoleClient :many
 SELECT id,name FROM role WHERE id IN (SELECT id_role FROM user_role WHERE id_user = $1);
@@ -43,35 +40,35 @@ WITH delete_role AS (
   DELETE FROM user_role
   WHERE id_user = $1 
 )
-INSERT INTO user_role (id_user, id_rol)
+INSERT INTO user_role (id_user, id_role)
 SELECT $1, UNNEST($2::int[]);
 
---name: AnyRoleClient :many
-SELECT
-    r.id,
-    r.name,
-    COALESCE(
-        jsonb_agg(
-            DISTINCT jsonb_build_object(
-                'id', p.id,
-                'name', p.name
-            )
-            ORDER BY p.name
-        ) FILTER (WHERE p.id IS NOT NULL),
-        '[]'
-    ) AS permissions
-FROM
-    public.role AS r
-LEFT JOIN
-    public.role_permission AS rp ON r.id = rp.id_role
-LEFT JOIN
-    public.permission AS p ON rp.id_permission = p.id
-GROUP BY
-    r.id, r.name
-WHERE
-    id IN (SELECT id_role FROM user_role WHERE id_user = $1)
-ORDER BY
-    r.name;
+--AllRoleClient :many
+-- SELECT
+--     r.id,
+--     r.name,
+--     COALESCE(
+--         jsonb_agg(
+--             DISTINCT jsonb_build_object(
+--                 'id', p.id,
+--                 'name', p.name
+--             )
+--             ORDER BY p.name
+--         ) FILTER (WHERE p.id IS NOT NULL),
+--         '[]'
+--     ) AS permissions
+-- FROM
+--     public.role AS r
+-- LEFT JOIN
+--     public.role_permission AS rp ON r.id = rp.id_role
+-- LEFT JOIN
+--     public.permission AS p ON rp.id_permission = p.id
+-- WHERE
+--     r.id IN (SELECT id_role FROM user_role WHERE id_user = $1)
+-- GROUP BY
+--     r.id, r.name
+-- ORDER BY
+--     r.name;
 
 -- name: DeleteRoleClient :exec
 DELETE FROM user_role WHERE id_user = $1;

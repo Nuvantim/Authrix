@@ -28,10 +28,10 @@ func GetClient(id int32) (req.GetClient, error) {
 		return req.GetClient{}, err
 	}
 	var data = req.GetClient{
-		ID:   client.ID,
-		Name: client.Name,
+		ID:    client.ID,
+		Name:  client.Name,
 		Email: client.Email,
-		Role: role,
+		Role:  role,
 	}
 	return data, nil
 }
@@ -40,17 +40,16 @@ func UpdateClient(Id int32, client req.UpdateClient) (req.GetClient, error) {
 	var update_data = repo.UpdateClientParams{
 		ID:    Id,
 		Name:  client.Name,
-		Email: client.Email,
+		Column3: client.Email,
 	}
 
 	if str.TrimSpace(client.Password) != "" {
 		psw := utils.HashBycrypt(client.Password)
-		update_data.Password = string(psw)
+		update_data.Column4 = string(psw)
 	}
 
 	// Update client data
-	data, err := db.Queries.UpdateClient(ctx.Background(), update_data)
-	if err != nil {
+	if err := db.Queries.UpdateClient(ctx.Background(), update_data); err != nil {
 		return req.GetClient{}, err
 	}
 
@@ -75,7 +74,7 @@ func UpdateClient(Id int32, client req.UpdateClient) (req.GetClient, error) {
 	}
 
 	// Get Client data
-	client_data, err := GetClient(data.ID)
+	client_data, err := GetClient(Id)
 	if err != nil {
 		return req.GetClient{}, err
 	}
