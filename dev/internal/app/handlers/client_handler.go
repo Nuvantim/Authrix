@@ -5,7 +5,6 @@ import (
 	"api/internal/app/service"
 	"github.com/gofiber/fiber/v2"
 	res "api/pkgs/utils"
-	repo "api/internal/app/repository"
 )
 
 func GetClient(c *fiber.Ctx) error {
@@ -45,8 +44,6 @@ func UpdateClient(c *fiber.Ctx) error {
 }
 
 func DeleteClient(c *fiber.Ctx) error {
-	var data repo.UserAccount
-
 	id, err := c.ParamsInt("id")
 	if err != nil{
 		return c.Status(400).JSON(res.Error(err.Error(),"Parser ID"))
@@ -57,5 +54,5 @@ func DeleteClient(c *fiber.Ctx) error {
 		c.Status(500).JSON(res.Error(err.Error(), "Delete Client"))
 	}
 	
-	return c.Status(200).JSON(res.Pass(message, data))
+	return c.Status(200).JSON(res.Pass(message, struct{}{}))
 }
