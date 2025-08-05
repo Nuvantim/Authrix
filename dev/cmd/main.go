@@ -4,6 +4,7 @@ import (
 	"api/config"
 	"api/database"
 	"api/internal/server/http"
+	"api/pkgs/utils"
 
 	"log"
 )
@@ -13,6 +14,8 @@ func main() {
 	if err := config.CheckEnv(); err != nil {
 		log.Fatal(err)
 	}
+	// Generate RSA
+	utils.InitRSAKeys()
 	
 	// Start Server
 	app := http.ServerGo()
