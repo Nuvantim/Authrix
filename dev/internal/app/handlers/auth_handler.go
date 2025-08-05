@@ -37,11 +37,24 @@ func Login(c *fiber.Ctx) error {
 	if err := c.BodyParser(&login); err != nil {
 		return c.Status(400).JSON(resp.Error(err.Error(), "Parser JSON"))
 	}
-	user_login, err := service.Login(login)
+	access, refresh, err := service.Login(login)
 	if err != nil {
 		return c.Status(500).JSON(resp.Error(err.Error(), "Login Account"))
 	}
-	return c.Status(200).JSON(resp.Pass("Login Account", user_login))
+	// Set Cookie with refresh token
+	c.Cookie(&fiber.Cookie{
+		Name:     "refresh_token",
+		Value:    refresh,
+		HTTPOnly: true,
+		Secure:   true, // Set to true in production
+		SameSite: "Strict",
+		Path:     "/",
+	})
+
+	// Set Response with access token
+	return c.Status(200).JSON(resp.Pass("Login Account", struct {
+		Token string `json:"access_token"`
+	}{Token: access}))
 }
 func ResetPassword(c *fiber.Ctx) error {
 	var pass request.ResetPassword

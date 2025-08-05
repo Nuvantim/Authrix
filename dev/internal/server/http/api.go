@@ -5,6 +5,7 @@ import (
 	"api/database"
 	"api/internal/routes"
 	"github.com/gofiber/fiber/v2"
+
 )
 
 // ServerGo initializes and returns a Fiber app instance

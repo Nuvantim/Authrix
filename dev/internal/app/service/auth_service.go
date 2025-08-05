@@ -80,21 +80,20 @@ func Register(regist req.Register) (string, error) {
 	return "Your account has been created, please login", nil
 }
 
-func Login(login req.Login) (req.Jwt, error) {
-	// (string, error)
+func Login(login req.Login) (string, string, error) {
 	// Find data account
 	data, err := db.Queries.FindEmail(ctx.Background(), login.Email)
 	if err != nil {
-		return req.Jwt{}, errors.New("Account Not Found")
+		return "", "", errors.New("Account Not Found")
 	}
 	//compared password
 	if err := bcrypt.CompareHashAndPassword([]byte(data.Password), []byte(login.Password)); err != nil {
-		return req.Jwt{}, errors.New("Password Incorect")
+		return "", "", errors.New("Password Incorect")
 	}
 
 	role, err := db.Queries.AllRoleClient(ctx.Background(), data.ID)
 	if err != nil {
-		return req.Jwt{}, err
+		return "", "", err
 	}
 	// Input jwt data
 	var jwt = req.Jwt{
@@ -102,8 +101,18 @@ func Login(login req.Login) (req.Jwt, error) {
 		Email: data.Email,
 		Role:  role,
 	}
+	// Create access token and refresh token
+	accessToken, err := utils.CreateToken(jwt)
+	if err != nil {
+		return "", "", err
+	}
 
-	return jwt, nil
+	refreshToken, err := utils.CreateRefreshToken(jwt)
+	if err != nil {
+		return "", "", err
+	}
+
+	return accessToken, refreshToken, nil
 
 }
 

@@ -4,6 +4,8 @@ import (
 	"api/config"
 	"api/database"
 	"api/internal/server/http"
+	"api/pkgs/utils"
+
 	"log"
 )
 
@@ -12,11 +14,9 @@ func main() {
 	if err := config.CheckEnv(); err != nil {
 		log.Fatal(err)
 	}
-
-	// Generate RS512
-	// if err := ensureRSAKeysExist("private.pem", "public.pem", 4096); err != nil {
-	// 	log.Fatal("RSA key failed to generate:", err)
-	// }
+	
+	// Generate RSA
+	utils.GenRSA()
 
 	// Start Server
 	app := http.ServerGo()
