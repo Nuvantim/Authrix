@@ -8,6 +8,7 @@ import (
 	"api/config"
 	"api/internal/app/repository"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 var (
@@ -34,6 +35,19 @@ func InitDB() {
 		// Inisialisasi Queries
 		Queries = repository.New(DB)
 	})
+}
+
+func Fatal(err error) error {
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		log.Printf("PGX ERROR | Code: %s | Message: %s | Detail: %s | Where: %s",
+			pgErr.Code, pgErr.Message, pgErr.Detail, pgErr.Where)
+
+		return errors.New(pgErr.Message)
+	}
+
+	log.Printf("Unexpected error: %v", err)
+	return errors.New(err.Error())
 }
 
 func CloseDB() {
