@@ -14,7 +14,7 @@ func GenRSA(){
 	_,err_public := os.Stat("public.pem")
 	_,err_private := os.Stat("private.pem")
 
-	if os.IsNotExist(err_public) && os.IsNotExist(err_private){
+	if os.IsNotExist(err_public) || os.IsNotExist(err_private){
 		print("Generate RSA key....")
 		privateKey, publicKey, err := generateRSAKeyPair(4096)
 		if err != nil {
