@@ -37,21 +37,23 @@ type RefreshClaims struct {
 // loadKey membaca dan memproses file kunci RSA
 func loadKey(filename string, isPrivate bool) (interface{}, error) {
 	keyBytes, err := os.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-
-	block, rest := pem.Decode(keyBytes)
-	if block == nil || (isPrivate && block.Type != "RSA PRIVATE KEY") || (!isPrivate && block.Type != "RSA PUBLIC KEY") {
-		return nil, errors.New("invalid key format")
+	if block == nil {
+		return nil, errors.New("failed to decode PEM block")
 	}
 
 	if len(rest) > 0 {
-		return nil, errors.New("extra data found after key")
+		return nil, errors.New("extra data found after PEM block")
 	}
 
 	if isPrivate {
+		if block.Type != "RSA PRIVATE KEY" {
+			return nil, errors.New("invalid private key format")
+		}
 		return x509.ParsePKCS1PrivateKey(block.Bytes)
+	}
+
+	if block.Type != "PUBLIC KEY" {
+		return nil, errors.New("invalid public key format")
 	}
 
 	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
@@ -61,10 +63,11 @@ func loadKey(filename string, isPrivate bool) (interface{}, error) {
 
 	rsaPubKey, ok := pub.(*rsa.PublicKey)
 	if !ok {
-		return nil, errors.New("invalid type for RSA public key")
+		return nil, errors.New("parsed public key is not an RSA key")
 	}
 
 	return rsaPubKey, nil
+
 }
 
 // LoadPrivateKey memuat kunci privat dari file
@@ -85,18 +88,15 @@ func LoadPublicKey() (*rsa.PublicKey, error) {
 	return key.(*rsa.PublicKey), nil
 }
 
-func init() {
-	// Generate RSA key pair if it doesn't exist
+func InitRSAKeys() {
 	GenRSA()
 
-	// Load private key
 	privateKey, err := LoadPrivateKey()
 	if err != nil {
 		log.Fatalf("Failed to load private key: %v", err)
 	}
 	PrivateKey = privateKey
 
-	// Load public key
 	publicKey, err := LoadPublicKey()
 	if err != nil {
 		log.Fatalf("Failed to load public key: %v", err)
