@@ -38,8 +38,8 @@ func GetClient(id int32) (req.GetClient, error) {
 
 func UpdateClient(Id int32, client req.UpdateClient) (req.GetClient, error) {
 	var update_data = repo.UpdateClientParams{
-		ID:    Id,
-		Name:  client.Name,
+		ID:      Id,
+		Name:    client.Name,
 		Column3: client.Email,
 	}
 
