@@ -86,16 +86,24 @@ func LoadPublicKey() (*rsa.PublicKey, error) {
 }
 
 func init() {
-	var err error
-	PrivateKey, err = LoadPrivateKey()
+	// Generate RSA key pair if it doesn't exist
+	GenRSA()
+
+	// Load private key
+	privateKey, err := LoadPrivateKey()
 	if err != nil {
-		log.Fatalf("Error loading private key: %v", err)
+		log.Fatalf("Failed to load private key: %v", err)
 	}
-	PublicKey, err = LoadPublicKey()
+	PrivateKey = privateKey
+
+	// Load public key
+	publicKey, err := LoadPublicKey()
 	if err != nil {
-		log.Fatalf("Error loading public key: %v", err)
+		log.Fatalf("Failed to load public key: %v", err)
 	}
+	PublicKey = publicKey
 }
+
 
 // CreateToken membuat access token
 func CreateToken(session req.Jwt) (string, error) {
