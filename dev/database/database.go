@@ -2,13 +2,14 @@ package database
 
 import (
 	"context"
+	"errors"
 	"log"
 	"sync"
 
 	"api/config"
 	"api/internal/app/repository"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 var (

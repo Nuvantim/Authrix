@@ -15,8 +15,10 @@ func main() {
 		log.Fatal(err)
 	}
 	// Generate RSA
-	utils.InitRSAKeys()
-	
+	utils.GenRSA()
+	// Get RSA
+	utils.CheckRSA()
+
 	// Start Server
 	app := http.ServerGo()
 

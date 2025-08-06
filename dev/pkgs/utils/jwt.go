@@ -1,9 +1,11 @@
 package utils
 
 import (
+	db "api/database"
 	repo "api/internal/app/repository"
 	req "api/internal/app/request"
 
+	"context"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
@@ -37,12 +39,13 @@ type RefreshClaims struct {
 // loadKey membaca dan memproses file kunci RSA
 func loadKey(filename string, isPrivate bool) (interface{}, error) {
 	keyBytes, err := os.ReadFile(filename)
-	if block == nil {
-		return nil, errors.New("failed to decode PEM block")
+	if err != nil {
+		return nil, err
 	}
 
-	if len(rest) > 0 {
-		return nil, errors.New("extra data found after PEM block")
+	block, _ := pem.Decode(keyBytes)
+	if block == nil {
+		return nil, errors.New("failed to decode PEM block containing the key")
 	}
 
 	if isPrivate {
@@ -67,7 +70,6 @@ func loadKey(filename string, isPrivate bool) (interface{}, error) {
 	}
 
 	return rsaPubKey, nil
-
 }
 
 // LoadPrivateKey memuat kunci privat dari file
@@ -88,9 +90,8 @@ func LoadPublicKey() (*rsa.PublicKey, error) {
 	return key.(*rsa.PublicKey), nil
 }
 
-func InitRSAKeys() {
-	GenRSA()
-
+// InitRSAKeys menginisialisasi kunci RSA
+func CheckRSA() {
 	privateKey, err := LoadPrivateKey()
 	if err != nil {
 		log.Fatalf("Failed to load private key: %v", err)
@@ -103,7 +104,6 @@ func InitRSAKeys() {
 	}
 	PublicKey = publicKey
 }
-
 
 // CreateToken membuat access token
 func CreateToken(session req.Jwt) (string, error) {
@@ -147,7 +147,26 @@ func CreateRefreshToken(session req.Jwt) (string, error) {
 }
 
 // AutoRefreshToken memperbarui token secara otomatis
-// func AutoRefreshToken(userID uint64) (string, error) {
+func AutoRefreshToken(userID int32) (string, error) {
+	user, err := db.Queries.GetClient(context.Background(), userID)
+	if err != nil {
+		return "", err
+	}
 
-// 	return CreateToken(user.ID, user.Email, user.Roles)
-// }
+	role, err := db.Queries.AllRoleClient(context.Background(), user.ID)
+	if err != nil {
+		return "", err
+	}
+
+	jwtData := req.Jwt{
+		ID:    user.ID,
+		Email: user.Email,
+		Role:  role,
+	}
+
+	freshJwt, err := CreateToken(jwtData)
+	if err != nil {
+		return "", err
+	}
+	return freshJwt, nil
+}

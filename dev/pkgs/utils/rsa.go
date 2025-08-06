@@ -5,16 +5,16 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"os"
 	"log"
+	"os"
 )
 
-func GenRSA(){
+func GenRSA() {
 	// Check RSA file
-	_,err_public := os.Stat("public.pem")
-	_,err_private := os.Stat("private.pem")
+	_, err_public := os.Stat("public.pem")
+	_, err_private := os.Stat("private.pem")
 
-	if os.IsNotExist(err_public) || os.IsNotExist(err_private){
+	if os.IsNotExist(err_public) || os.IsNotExist(err_private) {
 		print("Generate RSA key....")
 		privateKey, publicKey, err := generateRSAKeyPair(4096)
 		if err != nil {
@@ -65,8 +65,9 @@ func savePublicPEMKey(filename string, pubkey *rsa.PublicKey) error {
 	if err != nil {
 		return err
 	}
+
 	publicKeyPEM := &pem.Block{
-		Type:  "RSA PUBLIC KEY",
+		Type:  "PUBLIC KEY",
 		Bytes: publicKeyBytes,
 	}
 	return pem.Encode(file, publicKeyPEM)

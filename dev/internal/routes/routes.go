@@ -2,11 +2,15 @@ package routes
 
 import (
 	"api/internal/app/handlers"
+	"api/internal/middleware"
 	"github.com/gofiber/fiber/v2"
 )
 
 func Setup(app *fiber.App) {
 	app.Get("/", handler.Home)
+
+	app.Use(middleware.Setup())
+
 	auth := app.Group("/auth")
 	auth.Post("/send-otp", handler.SendOTP)
 	auth.Post("/register", handler.Register)

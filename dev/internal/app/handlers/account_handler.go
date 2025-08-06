@@ -7,22 +7,20 @@ import (
 )
 
 func GetProfile(c *fiber.Ctx) error {
-	// id := c.Locals("id")
-	var userID int32 = 2
-	if userID == 0 {
+	var id int32 = c.Locals("id").(int32)
+	if id == 0 {
 		return c.Status(401).JSON(fiber.Map{"message": "Unauthorized"})
 	}
 	// Get Account by id
-	user, err := service.GetProfile(userID)
+	user, err := service.GetProfile(id)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
 	return c.Status(200).JSON(user)
 }
 func UpdateAccount(c *fiber.Ctx) error {
-	// id := c.Locals("id")
-	var userID int32 = 2
-	if userID == 0 {
+	var id int32 = c.Locals("id").(int32)
+	if id == 0 {
 		return c.Status(401).JSON(fiber.Map{"message": "Unauthorized"})
 	}
 	var user request.UpdateAccount
@@ -30,7 +28,7 @@ func UpdateAccount(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": err})
 	}
 
-	userUpdate, err := service.UpdateAccount(user, userID)
+	userUpdate, err := service.UpdateAccount(user, id)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err})
 	}
@@ -39,12 +37,11 @@ func UpdateAccount(c *fiber.Ctx) error {
 }
 
 func DeleteAccount(c *fiber.Ctx) error {
-	// id := c.Locals("id")
-	var userID int32 = 2
-	if userID == 0 {
+	var id int32 = c.Locals("id").(int32)
+	if id == 0 {
 		return c.Status(401).JSON(fiber.Map{"message": "Unauthorized"})
 	}
-	msg, err := service.DeleteAccount(userID)
+	msg, err := service.DeleteAccount(id)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
