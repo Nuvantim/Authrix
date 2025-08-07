@@ -39,12 +39,14 @@ func Permission(requiredPermission string) fiber.Handler {
 		// Check Wheter the user has the necessary permissions
 		hasPermission := false
 		for _, role := range claims {
-			if perm, ok := role.Permissions.([]interface{}); ok {
-				for _, permission := range perm {
-					log.Println(permission)
-					if permission == requiredPermission {
-						hasPermission = true
-						break
+			if perms, ok := role.Permissions.([]interface{}); ok {
+				for _, p := range perms {
+					if name, ok := p.(map[string]interface{})["name"].(string); ok {
+						log.Println(name) // cetak name saja
+						if name == requiredPermission {
+							hasPermission = true
+							break
+						}
 					}
 				}
 				if hasPermission {
