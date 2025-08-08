@@ -4,8 +4,6 @@ import (
 	repo "api/internal/app/repository"
 	resp "api/pkgs/utils"
 
-	"log"
-
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -42,7 +40,6 @@ func Permission(requiredPermission string) fiber.Handler {
 			if perms, ok := role.Permissions.([]interface{}); ok {
 				for _, p := range perms {
 					if name, ok := p.(map[string]interface{})["name"].(string); ok {
-						log.Println(name) // cetak name saja
 						if name == requiredPermission {
 							hasPermission = true
 							break

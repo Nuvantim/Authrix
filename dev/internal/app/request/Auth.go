@@ -1,7 +1,5 @@
 package request
 
-import repo "api/internal/app/repository"
-
 type OtpToken struct {
 	Email string `json:"email"`
 }
@@ -22,10 +20,4 @@ type ResetPassword struct {
 type Login struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
-}
-
-type Jwt struct {
-	ID    int32                   `json:"id"`
-	Email string                  `json:"email"`
-	Role  []repo.AllRoleClientRow `json:"role"`
 }

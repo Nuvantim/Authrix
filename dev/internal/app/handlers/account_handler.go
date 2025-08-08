@@ -7,9 +7,9 @@ import (
 )
 
 func GetProfile(c *fiber.Ctx) error {
-	var id int32 = c.Locals("id").(int32)
+	var id = c.Locals("user_id").(int32)
 	if id == 0 {
-		return c.Status(401).JSON(fiber.Map{"message": "Unauthorized"})
+		return c.Status(401).JSON(fiber.Map{"message": "unauthorized"})
 	}
 	// Get Account by id
 	user, err := service.GetProfile(id)
@@ -19,9 +19,9 @@ func GetProfile(c *fiber.Ctx) error {
 	return c.Status(200).JSON(user)
 }
 func UpdateAccount(c *fiber.Ctx) error {
-	var id int32 = c.Locals("id").(int32)
+	var id = c.Locals("user_id").(int32)
 	if id == 0 {
-		return c.Status(401).JSON(fiber.Map{"message": "Unauthorized"})
+		return c.Status(401).JSON(fiber.Map{"message": "unauthorized"})
 	}
 	var user request.UpdateAccount
 	if err := c.BodyParser(&user); err != nil {
@@ -37,9 +37,9 @@ func UpdateAccount(c *fiber.Ctx) error {
 }
 
 func DeleteAccount(c *fiber.Ctx) error {
-	var id int32 = c.Locals("id").(int32)
+	var id = c.Locals("user_id").(int32)
 	if id == 0 {
-		return c.Status(401).JSON(fiber.Map{"message": "Unauthorized"})
+		return c.Status(401).JSON(fiber.Map{"message": "unauthorized"})
 	}
 	msg, err := service.DeleteAccount(id)
 	if err != nil {

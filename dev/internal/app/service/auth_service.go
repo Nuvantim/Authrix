@@ -96,18 +96,13 @@ func Login(login req.Login) (string, string, error) {
 		return "", "", err
 	}
 	// Input jwt data
-	var jwt = req.Jwt{
-		ID:    data.ID,
-		Email: data.Email,
-		Role:  role,
-	}
 	// Create access token and refresh token
-	accessToken, err := utils.CreateToken(jwt)
+	accessToken, err := utils.CreateToken(data.ID, data.Email, role)
 	if err != nil {
 		return "", "", err
 	}
 
-	refreshToken, err := utils.CreateRefreshToken(jwt)
+	refreshToken, err := utils.CreateRefreshToken(data.ID, data.Email)
 	if err != nil {
 		return "", "", err
 	}

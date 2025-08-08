@@ -3,7 +3,7 @@ package request
 import repo "api/internal/app/repository"
 
 type Permission struct {
-	Name string "json:name"
+	Name string `validate:"required" json:"name"`
 }
 
 type Role struct {

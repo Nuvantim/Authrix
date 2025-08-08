@@ -3,7 +3,6 @@ package utils
 import (
 	db "api/database"
 	repo "api/internal/app/repository"
-	req "api/internal/app/request"
 
 	"context"
 	"crypto/rsa"
@@ -106,43 +105,43 @@ func CheckRSA() {
 }
 
 // CreateToken membuat access token
-func CreateToken(session req.Jwt) (string, error) {
+func CreateToken(id int32, email string, role []repo.AllRoleClientRow) (string, error) {
 	if PrivateKey == nil {
 		return "", errors.New("private key is nil")
 	}
 
 	now := time.Now()
 	claims := Claims{
-		UserID: session.ID,
-		Email:  session.Email,
-		Roles:  session.Role,
+		UserID: id,
+		Email:  email,
+		Roles:  role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(now),
 			ExpiresAt: jwt.NewNumericDate(now.Add(time.Hour * 1)),
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodRS512, claims)
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 	return token.SignedString(PrivateKey)
 }
 
 // CreateRefreshToken membuat refresh token
-func CreateRefreshToken(session req.Jwt) (string, error) {
+func CreateRefreshToken(id int32, email string) (string, error) {
 	if PrivateKey == nil {
 		return "", errors.New("private key is nil")
 	}
 
 	now := time.Now()
 	claims := RefreshClaims{
-		UserID: session.ID,
-		Email:  session.Email,
+		UserID: id,
+		Email:  email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(now),
 			ExpiresAt: jwt.NewNumericDate(now.Add(24 * time.Hour)),
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodRS512, claims)
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 	return token.SignedString(PrivateKey)
 }
 
@@ -158,13 +157,7 @@ func AutoRefreshToken(userID int32) (string, error) {
 		return "", err
 	}
 
-	jwtData := req.Jwt{
-		ID:    user.ID,
-		Email: user.Email,
-		Role:  role,
-	}
-
-	freshJwt, err := CreateToken(jwtData)
+	freshJwt, err := CreateToken(user.ID, user.Email, role)
 	if err != nil {
 		return "", err
 	}

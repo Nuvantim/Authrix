@@ -16,7 +16,7 @@ func Setup(app *fiber.App) {
 	auth.Post("/reset-password", handler.ResetPassword)
 
 	// Set Middleware
-	app.Use(middleware.Setup())
+	app.Use(middleware.BearerAuth())
 
 	// user
 	account := app.Group("/account")
@@ -32,7 +32,7 @@ func Setup(app *fiber.App) {
 	client.Delete("/delete/:id", handler.DeleteClient)
 
 	// role
-	role := app.Group("/role",middleware.Permission("handle role"))
+	role := app.Group("/role", middleware.Permission("handle role"))
 	role.Get("/", handler.ListRole)
 	role.Get("/:id", handler.GetRole)
 	role.Post("/store", handler.CreateRole)
@@ -40,12 +40,11 @@ func Setup(app *fiber.App) {
 	role.Delete("/delete/:id", handler.DeleteRole)
 
 	// permission
-	permission := app.Group("/permission",middleware.Permission("handle permission"))
+	permission := app.Group("/permission", middleware.Permission("handle permission"))
 	permission.Get("/", handler.ListPermission)
 	permission.Get("/:id", handler.GetPermission)
 	permission.Post("/store", handler.CreatePermission)
 	permission.Put("/update/:id", handler.UpdatePermission)
 	permission.Delete("/delete/:id", handler.DeletePermission)
-
 
 }
