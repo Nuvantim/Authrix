@@ -12,11 +12,11 @@ import (
 func GetRole(id int32) (req.GetRole, error) {
 	role, err := db.Queries.GetRole(ctx.Background(), id)
 	if err != nil {
-		return req.GetRole{}, err
+		return req.GetRole{}, db.Fatal(err)
 	}
 	permission, err := db.Queries.GetPermissionRole(ctx.Background(), id)
 	if err != nil {
-		return req.GetRole{}, err
+		return req.GetRole{}, db.Fatal(err)
 	}
 	var data = req.GetRole{
 		ID:         role.ID,
@@ -29,7 +29,7 @@ func GetRole(id int32) (req.GetRole, error) {
 func ListRole() ([]repo.ListRoleRow, error) {
 	role, err := db.Queries.ListRole(ctx.Background())
 	if err != nil {
-		return []repo.ListRoleRow{}, errors.New("Role is empty")
+		return []repo.ListRoleRow{}, errors.New("role is empty")
 	}
 	return role, nil
 }
@@ -38,14 +38,14 @@ func CreateRole(data req.Role) ([]repo.ListRoleRow, error) {
 	// Create Role
 	role_id, err := db.Queries.CreateRole(ctx.Background(), data.Name)
 	if err != nil {
-		return []repo.ListRoleRow{}, err
+		return []repo.ListRoleRow{}, db.Fatal(err)
 	}
 
 	// check length data permission_id
 	// VerfyPermission
 	permission_id, err := db.Queries.VerifyPermission(ctx.Background(), data.PermissionID)
 	if err != nil {
-		return []repo.ListRoleRow{}, errors.New("Permission not found")
+		return []repo.ListRoleRow{}, errors.New("permission not found")
 	}
 	// check length data permission
 	var check int = len(permission_id)
@@ -65,7 +65,7 @@ func CreateRole(data req.Role) ([]repo.ListRoleRow, error) {
 
 	role, err := ListRole()
 	if err != nil {
-		return []repo.ListRoleRow{}, err
+		return []repo.ListRoleRow{}, db.Fatal(err)
 	}
 	return role, nil
 }
@@ -78,13 +78,13 @@ func UpdateRole(data req.Role, id int32) (req.GetRole, error) {
 	}
 
 	if err := db.Queries.UpdateRole(ctx.Background(), role_data); err != nil {
-		return req.GetRole{}, err
+		return req.GetRole{}, db.Fatal(err)
 	}
 
 	// Verify Role
 	role_id, err := db.Queries.VerifyRole(ctx.Background(), data.PermissionID)
 	if err != nil {
-		return req.GetRole{}, err
+		return req.GetRole{}, db.Fatal(err)
 	}
 	// Check lenght PermissionID
 	var check int = len(role_id)
@@ -97,7 +97,7 @@ func UpdateRole(data req.Role, id int32) (req.GetRole, error) {
 		}
 
 		if err := db.Queries.UpdatePermissionRole(ctx.Background(), role_permission); err != nil {
-			return req.GetRole{}, err
+			return req.GetRole{}, db.Fatal(err)
 		}
 	} else {
 		_ = db.Queries.DeletePermissionRole(ctx.Background(), id)
@@ -105,14 +105,14 @@ func UpdateRole(data req.Role, id int32) (req.GetRole, error) {
 
 	roles, err := GetRole(id)
 	if err != nil {
-		return req.GetRole{}, err
+		return req.GetRole{}, db.Fatal(err)
 	}
 	return roles, nil
 }
 
 func DeleteRole(id int32) (string, error) {
 	if err := db.Queries.DeleteRole(ctx.Background(), id); err != nil {
-		return "", err
+		return "", db.Fatal(err)
 	}
 	return "permission deleted", nil
 }

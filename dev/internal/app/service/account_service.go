@@ -14,7 +14,7 @@ import (
 func GetProfile(userID int32) (repo.GetProfileRow, error) {
 	data, err := db.Queries.GetProfile(ctx.Background(), userID)
 	if err != nil {
-		return repo.GetProfileRow{}, errors.New("Account not found !")
+		return repo.GetProfileRow{}, errors.New("account not found !")
 	}
 	data.UserAccount.ID = 0
 	data.UserProfile.UserID = 0
@@ -62,20 +62,20 @@ func UpdateAccount(user req.UpdateAccount, userIDs int32) (repo.GetProfileRow, e
 
 	// Wait for the result from the goroutine
 	if err := <-errChan; err != nil {
-		return repo.GetProfileRow{}, err
+		return repo.GetProfileRow{}, db.Fatal(err)
 	}
 
 	// Returning data
 	usr, err := GetProfile(userIDs)
 	if err != nil {
-		return repo.GetProfileRow{}, err
+		return repo.GetProfileRow{}, db.Fatal(err)
 	}
 	return usr, nil
 }
 
 func DeleteAccount(userID int32) (string, error) {
 	if err := db.Queries.DeleteAccount(ctx.Background(), userID); err != nil {
-		return "", err
+		return "", db.Fatal(err)
 	}
 	return "Your account successfuly delete", nil
 }

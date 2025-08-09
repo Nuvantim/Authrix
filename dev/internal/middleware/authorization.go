@@ -22,7 +22,7 @@ func Role(requiredRole string) fiber.Handler {
 		}
 
 		if hasRole != true {
-			return c.Status(fiber.StatusForbidden).JSON(resp.Error("Role Forbidden", "Authorization"))
+			return c.Status(fiber.StatusForbidden).JSON(resp.Error("authorization", "role forbidden"))
 		}
 
 		return c.Next()
@@ -53,7 +53,7 @@ func Permission(requiredPermission string) fiber.Handler {
 		}
 
 		if !hasPermission {
-			return c.Status(fiber.StatusForbidden).JSON(resp.Error("Permission Forbidden", "Authorization"))
+			return c.Status(fiber.StatusForbidden).JSON(resp.Error("authorization", "permission forbidden"))
 		}
 
 		return c.Next()

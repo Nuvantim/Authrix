@@ -13,7 +13,7 @@ import (
 func ListClient() ([]repo.ListClientRow, error) {
 	data, err := db.Queries.ListClient(ctx.Background())
 	if err != nil {
-		return []repo.ListClientRow{}, err
+		return []repo.ListClientRow{}, db.Fatal(err)
 	}
 	return data, nil
 }
@@ -21,11 +21,11 @@ func ListClient() ([]repo.ListClientRow, error) {
 func GetClient(id int32) (req.GetClient, error) {
 	client, err := db.Queries.GetClient(ctx.Background(), id)
 	if err != nil {
-		return req.GetClient{}, err
+		return req.GetClient{}, db.Fatal(err)
 	}
 	role, err := db.Queries.GetRoleClient(ctx.Background(), id)
 	if err != nil {
-		return req.GetClient{}, err
+		return req.GetClient{}, db.Fatal(err)
 	}
 	var data = req.GetClient{
 		ID:    client.ID,
@@ -50,13 +50,13 @@ func UpdateClient(Id int32, client req.UpdateClient) (req.GetClient, error) {
 
 	// Update client data
 	if err := db.Queries.UpdateClient(ctx.Background(), update_data); err != nil {
-		return req.GetClient{}, err
+		return req.GetClient{}, db.Fatal(err)
 	}
 
 	// verify role
 	role, err := db.Queries.VerifyRole(ctx.Background(), client.Role)
 	if err != nil {
-		return req.GetClient{}, err
+		return req.GetClient{}, db.Fatal(err)
 	}
 	var check int = len(role)
 	if check != 0 {
@@ -67,7 +67,7 @@ func UpdateClient(Id int32, client req.UpdateClient) (req.GetClient, error) {
 		}
 
 		if err := db.Queries.UpdateRoleClient(ctx.Background(), client_role); err != nil {
-			return req.GetClient{}, err
+			return req.GetClient{}, db.Fatal(err)
 		}
 	} else {
 		_ = db.Queries.DeleteRoleClient(ctx.Background(), Id)
@@ -76,7 +76,7 @@ func UpdateClient(Id int32, client req.UpdateClient) (req.GetClient, error) {
 	// Get Client data
 	client_data, err := GetClient(Id)
 	if err != nil {
-		return req.GetClient{}, err
+		return req.GetClient{}, db.Fatal(err)
 	}
 
 	return client_data, nil
@@ -85,7 +85,7 @@ func UpdateClient(Id int32, client req.UpdateClient) (req.GetClient, error) {
 
 func DeleteClient(id int32) (string, error) {
 	if err := db.Queries.DeleteClient(ctx.Background(), id); err != nil {
-		return "", err
+		return "", db.Fatal(err)
 	}
 	return "Client Deleted", nil
 }

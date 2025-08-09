@@ -11,35 +11,35 @@ import (
 func SendOTP(c *fiber.Ctx) error {
 	var otp request.OtpToken
 	if err := c.BodyParser(&otp); err != nil {
-		return c.Status(400).JSON(resp.Error(err.Error(), "Parser JSON"))
+		return c.Status(400).JSON(resp.Error("parser json", err.Error()))
 	}
 	send, err := service.SendOTP(otp.Email)
 	if err != nil {
-		return c.Status(500).JSON(resp.Error(err.Error(), "Send OTP"))
+		return c.Status(500).JSON(resp.Error("send otp", err.Error()))
 	}
-	return c.Status(200).JSON(fiber.Map{"message": send})
+	return c.Status(200).JSON(resp.Pass(send, struct{}{}))
 }
 
 func Register(c *fiber.Ctx) error {
 	var regist request.Register
 	if err := c.BodyParser(&regist); err != nil {
-		return c.Status(400).JSON(resp.Error(err.Error(), "Parser JSON"))
+		return c.Status(400).JSON(resp.Error("parser json", err.Error()))
 	}
 	user_regist, err := service.Register(regist)
 	if err != nil {
-		return c.Status(500).JSON(resp.Error(err.Error(), "Register Account"))
+		return c.Status(500).JSON(resp.Error("register account", err.Error()))
 	}
-	return c.Status(200).JSON(fiber.Map{"message": user_regist})
+	return c.Status(200).JSON(resp.Pass(user_regist, struct{}{}))
 }
 
 func Login(c *fiber.Ctx) error {
 	var login request.Login
 	if err := c.BodyParser(&login); err != nil {
-		return c.Status(400).JSON(resp.Error(err.Error(), "Parser JSON"))
+		return c.Status(400).JSON(resp.Error("parser json", err.Error()))
 	}
 	access, refresh, err := service.Login(login)
 	if err != nil {
-		return c.Status(500).JSON(resp.Error(err.Error(), "Login Account"))
+		return c.Status(500).JSON(resp.Error("login account", err.Error()))
 	}
 	// Set Cookie with refresh token
 	c.Cookie(&fiber.Cookie{
@@ -52,20 +52,20 @@ func Login(c *fiber.Ctx) error {
 	})
 
 	// Set Response with access token
-	return c.Status(200).JSON(resp.Pass("Login Account", struct {
+	return c.Status(200).JSON(resp.Pass("login account", struct {
 		Token string `json:"access_token"`
 	}{Token: access}))
 }
 func ResetPassword(c *fiber.Ctx) error {
 	var pass request.ResetPassword
 	if err := c.BodyParser(&pass); err != nil {
-		return c.Status(400).JSON(resp.Error(err.Error(), "Parser JSON"))
+		return c.Status(400).JSON(resp.Error("parser json", err.Error()))
 	}
 	update_password, err := service.ResetPassword(pass)
 	if err != nil {
-		return c.Status(500).JSON(resp.Error(err.Error(), "Reset Password"))
+		return c.Status(500).JSON(resp.Error("reset password", err.Error()))
 	}
-	return c.Status(200).JSON(fiber.Map{"message": update_password})
+	return c.Status(200).JSON(resp.Pass(update_password, struct{}{}))
 }
 
 // func Logout(c *fiber.Ctx){}

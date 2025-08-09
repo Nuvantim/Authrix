@@ -21,7 +21,7 @@ SELECT id,name,email FROM user_account WHERE id = $1;
 -- name: UpdateClient :exec
 UPDATE user_account SET 
 	name = $2, 
-	email = COALESCE(NULLIF(TRIM($3::varchar),''), email), 
+    email = COALESCE(NULLIF(TRIM($3::varchar),''), email), 
 	password = COALESCE(NULLIF(TRIM($4::varchar),''), password)
 WHERE id = $1;
 

@@ -70,20 +70,20 @@ func BearerAuth() fiber.Handler {
 										return c.Next()
 									}
 								} else {
-									log.Printf("Error validating new access token: %v", err)
+									log.Printf("error validating new access token: %v", err)
 								}
 							} else {
-								log.Printf("Error refreshing access token: %v", err)
+								log.Printf("error refreshing access token: %v", err)
 							}
 						}
 					} else {
-						log.Printf("Refresh token invalid: %v", err)
+						log.Printf("refresh token invalid: %v", err)
 					}
 				}
 			}
 		}
 
 		// Jika kedua token tidak valid, kembalikan response unauthorized
-		return c.Status(fiber.StatusUnauthorized).JSON(utils.Error("Authentication required", "Authentication"))
+		return c.Status(fiber.StatusUnauthorized).JSON(utils.Error("authentication", "authentication required"))
 	}
 }

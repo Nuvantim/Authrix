@@ -12,7 +12,7 @@ type Failed struct {
 	Error   string `json:"error"`
 }
 
-func Error(err, msg string) Failed {
+func Error(msg, err string) Failed {
 	return Failed{
 		Success: false,
 		Message: msg,

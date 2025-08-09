@@ -11,47 +11,47 @@ func GetClient(c *fiber.Ctx) error {
 	id, _ := c.ParamsInt("id")
 	client, err := service.GetClient(int32(id))
 	if err != nil {
-		return c.Status(500).JSON(resp.Error(err.Error(), "Get Client data"))
+		return c.Status(500).JSON(resp.Error("get client data", err.Error()))
 	}
-	return c.Status(200).JSON(resp.Pass("Get Client Data", client))
+	return c.Status(200).JSON(resp.Pass("get client data", client))
 }
 
 func ListClient(c *fiber.Ctx) error {
 	client, err := service.ListClient()
 	if err != nil {
-		return c.Status(500).JSON(resp.Error(err.Error(), "List Client data"))
+		return c.Status(500).JSON(resp.Error("list client", err.Error()))
 	}
-	return c.Status(200).JSON(resp.Pass("Get Client Data", client))
+	return c.Status(200).JSON(resp.Pass("list client", client))
 }
 
 func UpdateClient(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
 	if err != nil {
-		return c.Status(400).JSON(resp.Error(err.Error(), "Parser ID"))
+		return c.Status(400).JSON(resp.Error("parser id", err.Error()))
 	}
 
 	var data request.UpdateClient
 
 	if err := c.BodyParser(&data); err != nil {
-		return c.Status(400).JSON(resp.Error(err.Error(), "Parser JSON"))
+		return c.Status(400).JSON(resp.Error("parser json", err.Error()))
 	}
 	client, err := service.UpdateClient(int32(id), data)
 	if err != nil {
-		return c.Status(500).JSON(resp.Error(err.Error(), "Update Client"))
+		return c.Status(500).JSON(resp.Error("update client", err.Error()))
 	}
-	return c.Status(200).JSON(resp.Pass("Update Client data", client))
+	return c.Status(200).JSON(resp.Pass("update client", client))
 
 }
 
 func DeleteClient(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
 	if err != nil {
-		return c.Status(400).JSON(resp.Error(err.Error(), "Parser ID"))
+		return c.Status(400).JSON(resp.Error("parser id", err.Error()))
 	}
 
 	message, err := service.DeleteClient(int32(id))
 	if err != nil {
-		c.Status(500).JSON(resp.Error(err.Error(), "Delete Client"))
+		c.Status(500).JSON(resp.Error("delete client", err.Error()))
 	}
 
 	return c.Status(200).JSON(resp.Pass(message, struct{}{}))

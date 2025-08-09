@@ -21,9 +21,9 @@ func SendOTP(email string) (string, error) {
 	}
 
 	if err := db.Queries.CreateOTP(ctx.Background(), token); err != nil {
-		return "", err
+		return "", db.Fatal(err)
 	}
-	return "OTP send successfully", nil
+	return "otp send successfully", nil
 
 }
 
@@ -36,11 +36,11 @@ func Register(regist req.Register) (string, error) {
 
 	otpSearch, err := db.Queries.FindOtpByEmail(ctx.Background(), searchOtp)
 	if err != nil {
-		return "", err
+		return "", db.Fatal(err)
 	}
 
 	if otpSearch == 0 {
-		return "", errors.New("OTP not found or invalid")
+		return "", errors.New("otp not found or invalid")
 	}
 
 	var pass = utils.HashBycrypt(regist.Password) // Hashing Password
@@ -74,37 +74,37 @@ func Register(regist req.Register) (string, error) {
 
 	// Wait for the result from the goroutine
 	if err := <-errChan; err != nil {
-		return "", err
+		return "", db.Fatal(err)
 	}
 
-	return "Your account has been created, please login", nil
+	return "your account has been created, please login", nil
 }
 
 func Login(login req.Login) (string, string, error) {
 	// Find data account
 	data, err := db.Queries.FindEmail(ctx.Background(), login.Email)
 	if err != nil {
-		return "", "", errors.New("Account Not Found")
+		return "", "", errors.New("account not found")
 	}
 	//compared password
 	if err := bcrypt.CompareHashAndPassword([]byte(data.Password), []byte(login.Password)); err != nil {
-		return "", "", errors.New("Password Incorect")
+		return "", "", errors.New("password incorect")
 	}
 
 	role, err := db.Queries.AllRoleClient(ctx.Background(), data.ID)
 	if err != nil {
-		return "", "", err
+		return "", "", db.Fatal(err)
 	}
 	// Input jwt data
 	// Create access token and refresh token
 	accessToken, err := utils.CreateToken(data.ID, data.Email, role)
 	if err != nil {
-		return "", "", err
+		return "", "", db.Fatal(err)
 	}
 
 	refreshToken, err := utils.CreateRefreshToken(data.ID, data.Email)
 	if err != nil {
-		return "", "", err
+		return "", "", db.Fatal(err)
 	}
 
 	return accessToken, refreshToken, nil
@@ -116,18 +116,18 @@ func ResetPassword(pass req.ResetPassword) (string, error) {
 	// Check Code Otp
 	otp_search, err := db.Queries.FindOTP(ctx.Background(), pass.Code)
 	if err != nil {
-		return "", errors.New("OTP code not found")
+		return "", errors.New("otp code not found")
 	}
 
 	// Check Email User Account
 	email_search, err := db.Queries.FindEmail(ctx.Background(), otp_search.Email)
 	if err != nil {
-		return "", errors.New("Email not found")
+		return "", errors.New("email not found")
 	}
 
 	// Check if Password is same
 	if pass.RetypePassword != pass.Password {
-		return "", errors.New("Password incorect")
+		return "", errors.New("password incorect")
 	}
 
 	// UpdatePassword
@@ -157,8 +157,8 @@ func ResetPassword(pass req.ResetPassword) (string, error) {
 	}()
 
 	if err := <-errChan; err != nil {
-		return "", err
+		return "", db.Fatal(err)
 	}
 
-	return "Reset password successfully", nil
+	return "reset password successfully", nil
 }
