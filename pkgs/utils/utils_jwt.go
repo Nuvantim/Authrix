@@ -110,7 +110,7 @@ func CreateToken(id int32, email string, role []repo.AllRoleClientRow) (string, 
 		return "", errors.New("private key is nil")
 	}
 
-	now := time.Now()
+	now := time.Now().UTC()
 	claims := Claims{
 		UserID: id,
 		Email:  email,
