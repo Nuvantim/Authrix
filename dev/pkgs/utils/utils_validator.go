@@ -4,47 +4,63 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 )
 
-// A pre-configured validator instance.
+// Pre-configured validator instance
 var validate = func() *validator.Validate {
 	v := validator.New()
 	v.RegisterTagNameFunc(func(f reflect.StructField) string {
-		if name := f.Tag.Get("json"); name != "" {
-			return name
+		name := f.Tag.Get("json")
+		if name == "-" {
+			return ""
 		}
-		return f.Name
+		if idx := strings.Index(name, ","); idx != -1 {
+			name = name[:idx]
+		}
+		if name == "" {
+			return f.Name
+		}
+		return name
 	})
 	return v
 }()
 
-// msgForTag returns a human-readable error message for a given validation tag.
+// Static error messages
 var staticErrorMessages = map[string]string{
-	"required": "this field is required",
+	"required": "field is required",
 	"email":    "invalid email format",
-	"default":  "validation failed",
+	"omitempty": "",
+	"dive":      "",
+	"default":  "invalid value",
 }
 
+// Human-readable messages for tags
 func msgForTag(tag, param string) string {
-	if msg, ok := staticErrorMessages[tag]; ok {
+	if msg, ok := staticErrorMessages[tag]; ok && msg != "" {
 		return msg
 	}
 
 	switch tag {
+	case "min":
+		return fmt.Sprintf("minimum length is %s", param)
+	case "gt":
+		return fmt.Sprintf("value must be greater than %s", param)
 	case "gte":
 		return fmt.Sprintf("value must be ≥ %s", param)
 	case "lte":
 		return fmt.Sprintf("value must be ≤ %s", param)
+	case "eqfield":
+		return fmt.Sprintf("must be equal to %s", param)
 	default:
 		return staticErrorMessages["default"]
 	}
 }
 
-// validate performs validation on a struct.
+// Validate struct
 func Validates[T any](data T) error {
-	// Validate using the go-playground validator.
 	if err := validate.Struct(data); err != nil {
 		var ve validator.ValidationErrors
 		if errors.As(err, &ve) && len(ve) > 0 {
@@ -54,3 +70,4 @@ func Validates[T any](data T) error {
 	}
 	return nil
 }
+
