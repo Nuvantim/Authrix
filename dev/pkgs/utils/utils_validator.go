@@ -60,7 +60,7 @@ func msgForTag(tag, param string) string {
 }
 
 // Validate struct
-func Validates[T any](data T) error {
+func Validates[T struct{}](data T) error {
 	if err := validate.Struct(data); err != nil {
 		var ve validator.ValidationErrors
 		if errors.As(err, &ve) && len(ve) > 0 {
