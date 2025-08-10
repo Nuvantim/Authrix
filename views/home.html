@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authrix - Golang JWT Authorization API</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    >
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    >
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Space Grotesk", "sans-serif"],
+            },
+            colors: {
+              primary: "#FF5E5B",
+              secondary: "#00CECB",
+              accent: "#FFED66",
+              dark: "#2D3047",
+              light: "#FFFFF7",
+            },
+            boxShadow: {
+              brutal: "8px 8px 0px #000",
+              brutalSm: "4px 4px 0px #000",
+              brutalHover: "6px 6px 0px #000",
+            },
+            animation: {
+              "bounce-slow": "bounce 3s infinite",
+              "pulse-slow": "pulse 4s infinite",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .code-block {
+        background-color: #2d3047;
+        color: white;
+        font-family: monospace;
+      }
+      .hero-code {
+        background-image: linear-gradient(to right, #2d3047, #3d4057);
+      }
+      @keyframes float {
+        0%, 100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+      .animate-float {
+        animation: float 3s ease-in-out infinite;
+      }
+    </style>
+  </head>
+  <body class="bg-light font-sans text-dark">
+    <div class="container mx-auto px-4 md:px-6">
+      <!-- Header -->
+      <header
+        class="flex flex-col sm:flex-row justify-between items-center py-8 border-b-4 border-dark gap-4 sm:gap-0"
+      >
+        <a
+          href="#"
+          class="text-primary font-bold text-2xl md:text-3xl bg-accent px-5 py-3 shadow-brutal border-2 border-dark animate__animated animate__fadeInLeft hover:scale-105 transition-transform"
+        >
+          AUTHRIX
+        </a>
+        <nav>
+          <ul class="flex space-x-2 sm:space-x-4">
+            <li>
+              <a
+                href="#docs"
+                class="font-medium px-3 sm:px-4 py-2 border-2 border-dark bg-white shadow-brutalSm hover:shadow-brutalHover hover:translate-x-0.5 hover:translate-y-0.5 transition-all animate__animated animate__fadeInRight flex items-center gap-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+                  />
+                </svg>
+                <span>Github</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </header>
+
+      <!-- Hero Section -->
+      <section
+        class="flex flex-col md:flex-row items-center py-16 md:py-24 gap-12"
+      >
+        <div class="md:w-1/2 animate__animated animate__fadeInUp">
+          <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-6">
+            Scalable JWT Auth for <span class="text-primary animate-pulse-slow"
+            >Golang</span> Apps
+          </h1>
+          <p class="text-xl mb-8 max-w-lg">
+            Authrix is a Golang-based JWT Authorization REST API designed to
+            manage user authentication and authorization processes quickly,
+            securely, and at scale.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4">
+            <a
+              href="#docs"
+              class="bg-accent text-dark font-bold px-8 py-4 border-2 border-dark shadow-brutal hover:shadow-brutalHover hover:translate-x-0.5 hover:translate-y-0.5 transition-all text-center animate-float"
+            >
+              Get Started
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
