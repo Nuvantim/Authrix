@@ -1,23 +1,23 @@
 package request
 
 type OtpToken struct {
-	Email string `json:"email"`
+	Email string `validate:"required,email" json:"email"`
 }
 
 type Register struct {
-	Code     string `json:"code"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Code     string `validate:"required" json:"code"`
+	Name     string `validate:"required" json:"name"`
+	Email    string `validate:"required,email" json:"email"`
+	Password string `validate:"required,min=8" json:"password"`
 }
 
 type ResetPassword struct {
-	Code           string `json:"code"`
-	Password       string `json:"password"`
-	RetypePassword string `json:"retype_password"`
+	Code           string `validate:"required" json:"code"`
+	Password       string `validate:"required,min=8" json:"password"`
+	RetypePassword string `validate:"required,eqfield=Password" json:"retype_password"`
 }
 
 type Login struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `validate:"required,email" json:"email"`
+	Password string `validate:"required,min=8" json:"password"`
 }
