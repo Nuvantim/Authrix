@@ -7,8 +7,8 @@ type Permission struct {
 }
 
 type Role struct {
-	Name         string  `json:"name"`
-	PermissionID []int32 `json:"permission_id"`
+	Name         string  `validate:"required" json:"name"`
+	PermissionID []int32 `validate:"omitempty,dive,gt=0" json:"permission_id"`
 }
 
 type GetRole struct {
