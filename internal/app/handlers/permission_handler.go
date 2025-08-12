@@ -5,12 +5,17 @@ import (
 	"api/internal/app/service"
 	resp "api/pkgs/utils"
 	"github.com/gofiber/fiber/v2"
+	"math"
 )
 
 func GetPermission(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
 	if err != nil {
 		return c.Status(400).JSON(resp.Error("get id", err.Error()))
+	}
+	// validate range int32
+	if id < math.MinInt32 || id > math.MaxInt32{
+		return c.Status(400).JSON(resp.Error("validation", "out of int32 range"))
 	}
 	permission, err := service.GetPermission(int32(id))
 	if err != nil {
@@ -49,6 +54,10 @@ func UpdatePermission(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(400).JSON(resp.Error("get id", err.Error()))
 	}
+	// validate range int32
+	if id < math.MinInt32 || id > math.MaxInt32{
+		return c.Status(400).JSON(resp.Error("validation", "out of int32 range"))
+	}
 	if err := c.BodyParser(&data); err != nil {
 		return c.Status(400).JSON(resp.Error("parser json", err.Error()))
 	}
@@ -66,6 +75,10 @@ func DeletePermission(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
 	if err != nil {
 		return c.Status(400).JSON(resp.Error("get id", err.Error()))
+	}
+	// validate range int32
+	if id < math.MinInt32 || id > math.MaxInt32{
+		return c.Status(400).JSON(resp.Error("validation", "out of int32 range"))
 	}
 	message, err := service.DeletePermission(int32(id))
 	if err != nil {

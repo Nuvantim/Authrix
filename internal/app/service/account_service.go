@@ -14,7 +14,7 @@ import (
 func GetProfile(userID int32) (repo.GetProfileRow, error) {
 	data, err := db.Queries.GetProfile(ctx.Background(), userID)
 	if err != nil {
-		return repo.GetProfileRow{}, errors.New("account not found !")
+		return repo.GetProfileRow{}, errors.New("account not found")
 	}
 	data.UserAccount.ID = 0
 	data.UserProfile.UserID = 0

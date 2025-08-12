@@ -21,7 +21,7 @@ func Role(requiredRole string) fiber.Handler {
 			}
 		}
 
-		if hasRole != true {
+		if !hasRole {
 			return c.Status(fiber.StatusForbidden).JSON(resp.Error("authorization", "role forbidden"))
 		}
 

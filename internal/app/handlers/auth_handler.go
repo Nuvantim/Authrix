@@ -61,11 +61,11 @@ func Login(c *fiber.Ctx) error {
 	}
 	// Set Cookie with refresh token
 	c.Cookie(&fiber.Cookie{
-		Name:     "refresh_token",
+		Name:     "refresh",
 		Value:    refresh,
 		HTTPOnly: true,
-		Secure:   true, // Set to true in production
-		SameSite: "Strict",
+		Secure:   true,
+		SameSite: "Lax",
 		Path:     "/",
 	})
 

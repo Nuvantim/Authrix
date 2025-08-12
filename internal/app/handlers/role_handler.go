@@ -5,6 +5,8 @@ import (
 	"api/internal/app/service"
 	resp "api/pkgs/utils"
 	"github.com/gofiber/fiber/v2"
+
+	"math"
 )
 
 func CreateRole(c *fiber.Ctx) error {
@@ -29,6 +31,10 @@ func GetRole(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(400).JSON(resp.Error("get id", err.Error()))
 	}
+	// validate range int32
+	if id < math.MinInt32 || id > math.MaxInt32{
+		return c.Status(400).JSON(resp.Error("validation", "out of int32 range "))
+	}
 	role, err := service.GetRole(int32(id))
 	if err != nil {
 		return c.Status(500).JSON(resp.Error("get role", err.Error()))
@@ -48,10 +54,14 @@ func UpdateRole(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(400).JSON(resp.Error("get id", err.Error()))
 	}
+	// validate range int32
+	if id < math.MinInt32 || id > math.MaxInt32{
+		return c.Status(400).JSON(resp.Error("validation", "out of int32 range "))
+	}
+	//
 	if err := c.BodyParser(&data); err != nil {
 		return c.Status(400).JSON(resp.Error("parser json", err.Error()))
 	}
-
 	// validate data
 	if err := resp.Validates(data); err != nil {
 		return c.Status(400).JSON(resp.Error("validation data", err.Error()))
@@ -69,6 +79,10 @@ func DeleteRole(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
 	if err != nil {
 		return c.Status(400).JSON(resp.Error("get id", err.Error()))
+	}
+	// validate range int32
+	if id < math.MinInt32 || id > math.MaxInt32{
+		return c.Status(400).JSON(resp.Error("validation", "out of int32 range "))
 	}
 	msg, err := service.DeleteRole(int32(id))
 	if err != nil {

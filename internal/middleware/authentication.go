@@ -12,7 +12,7 @@ func BearerAuth() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var tokenString string
 		authHeader := c.Get("Authorization")
-		authCookie := c.Cookies("refresh_token")
+		authCookie := c.Get("Set-Cookie")
 
 		// Ambil token dari header Authorization
 		if strings.HasPrefix(authHeader, "Bearer ") {

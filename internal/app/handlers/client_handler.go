@@ -5,10 +5,18 @@ import (
 	"api/internal/app/service"
 	resp "api/pkgs/utils"
 	"github.com/gofiber/fiber/v2"
+	"math"
 )
 
 func GetClient(c *fiber.Ctx) error {
-	id, _ := c.ParamsInt("id")
+	id, err := c.ParamsInt("id")
+	if err != nil{
+		return c.Status(400).JSON(resp.Error("get id", err.Error()))
+	}
+	// validate range int32
+	if id < math.MinInt32 || id > math.MaxInt32{
+		return c.Status(400).JSON(resp.Error("validation", "out of int32 range"))
+	}
 	client, err := service.GetClient(int32(id))
 	if err != nil {
 		return c.Status(500).JSON(resp.Error("get client data", err.Error()))
@@ -29,7 +37,10 @@ func UpdateClient(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(400).JSON(resp.Error("parser id", err.Error()))
 	}
-
+	// validate range int32
+	if id < math.MinInt32 || id > math.MaxInt32{
+		return c.Status(400).JSON(resp.Error("validation", "out of int32 range"))
+	}
 	var data request.UpdateClient
 
 	if err := c.BodyParser(&data); err != nil {
@@ -45,7 +56,6 @@ func UpdateClient(c *fiber.Ctx) error {
 		return c.Status(500).JSON(resp.Error("update client", err.Error()))
 	}
 	return c.Status(200).JSON(resp.Pass("update client", client))
-
 }
 
 func DeleteClient(c *fiber.Ctx) error {
@@ -53,7 +63,10 @@ func DeleteClient(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(400).JSON(resp.Error("parser id", err.Error()))
 	}
-
+	// validate range int32
+	if id < math.MinInt32 || id > math.MaxInt32{
+		return c.Status(400).JSON(resp.Error("validation", "out of int32 range"))
+	}
 	message, err := service.DeleteClient(int32(id))
 	if err != nil {
 		c.Status(500).JSON(resp.Error("delete client", err.Error()))
