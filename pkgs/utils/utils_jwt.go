@@ -131,7 +131,7 @@ func CreateRefreshToken(id int32, email string) (string, error) {
 		return "", errors.New("private key is nil")
 	}
 
-	now := time.Now()
+	now := time.Now().UTC()
 	claims := RefreshClaims{
 		UserID: id,
 		Email:  email,
