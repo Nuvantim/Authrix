@@ -3,8 +3,8 @@ package database
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
-	"os"
 	"sync"
 	"time"
 
@@ -15,38 +15,37 @@ import (
 )
 
 var (
-	DB      *pgxpool.Pool
-	once    sync.Once
+	DB *pgxpool.Pool
 	Queries *repository.Queries
+	once sync.Once
 )
 
 func InitDB() {
 	once.Do(func() {
-		dbconfig, errs := config.GetDatabaseConfig()
-		if errs != nil {
-			log.Fatal(errs)
+		log.Println("Initializing database connection...")
+		
+		dbConfig, err := config.GetDatabaseConfig()
+		if err != nil {
+			log.Fatalf("Failed to get database config: %v", err)
 		}
 
-		dsn := "postgres://" + dbconfig.User + ":" + dbconfig.Password + "@" + dbconfig.Host + ":" + dbconfig.Port + "/" + dbconfig.Name
+		dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
+			dbConfig.User, dbConfig.Password, dbConfig.Host, dbConfig.Port, dbConfig.Name)
 
-		// Parse config supaya bisa custom pool
 		poolConfig, err := pgxpool.ParseConfig(dsn)
 		if err != nil {
-			log.Fatalf("Unable to parse database config: %v", err)
+			log.Fatalf("Unable to parse database config DSN: %v", err)
 		}
 
-		// Pool tuning
-		poolConfig.MaxConns = 20                    // batas koneksi maksimum
-		poolConfig.MinConns = 5                      // koneksi standby
-		poolConfig.MaxConnIdleTime = 5 * time.Minute // idle max 5 menit
-		poolConfig.MaxConnLifetime = time.Hour       // koneksi maksimal 1 jam
-		poolConfig.HealthCheckPeriod = time.Minute   // cek koneksi tiap menit
+		poolConfig.MaxConns = 20
+		poolConfig.MinConns = 5
+		poolConfig.MaxConnIdleTime = 5 * time.Minute
+		poolConfig.MaxConnLifetime = time.Hour
+		poolConfig.HealthCheckPeriod = time.Minute
+		
+		poolConfig.ConnConfig.DefaultQueryExecMode = pgxpool.QueryExecMode
 
-		// Statement cache biar query sering dipakai jadi lebih cepat
-		poolConfig.ConnConfig.DefaultQueryExecMode = pgxpool.QueryExecModeCacheStatement
-
-		// Timeout default (misal 5 detik)
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
 		DB, err = pgxpool.NewWithConfig(ctx, poolConfig)
@@ -54,7 +53,12 @@ func InitDB() {
 			log.Fatalf("Unable to create connection pool: %v", err)
 		}
 
+		if err = DB.Ping(ctx); err != nil {
+			log.Fatalf("Could not ping database: %v", err)
+		}
+
 		Queries = repository.New(DB)
+		log.Println("Database connection successfully initialized!")
 	})
 }
 
@@ -63,15 +67,16 @@ func Fatal(err error) error {
 	if errors.As(err, &pgErr) {
 		log.Printf("PGX ERROR | Code: %s | Message: %s | Detail: %s | Where: %s",
 			pgErr.Code, pgErr.Message, pgErr.Detail, pgErr.Where)
-		return errors.New(pgErr.Message)
+		return fmt.Errorf("database error: %s", pgErr.Message)
 	}
+	
 	log.Printf("Unexpected error: %v", err)
-	return errors.New(err.Error())
+	return err
 }
 
 func CloseDB() {
-	log.Println("Disconnection Database")
 	if DB != nil {
+		log.Println("Closing database connection pool.")
 		DB.Close()
 	}
 }
