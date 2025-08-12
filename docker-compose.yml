@@ -3,18 +3,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: my-rpc
+    image: authrix_dev
     pull_policy: never
-    container_name: myrpc
+    container_name: authrix_app
     restart: always
     ports:
-      - "6363:6363"
+      - "8080:8080"
     volumes:
       - ./logs:/app/logs
     depends_on:
       - db
     networks:
-      - microservice-network
+      - authrix-network
   db:
     image: postgres:16-alpine3.20
     container_name: mydata
@@ -22,17 +22,17 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin345
-      POSTGRES_DB: example
+      POSTGRES_DB: authrix
     ports:
       - "5435:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./database/init/schema/schema.sql:/docker-entrypoint-initdb.d/spmi.sql
     networks:
-      - microservice-network
+      - authrix-network
 
 volumes:
   postgres-data:
 networks:
-  microservice-network:
+  authrix-network:
     driver: bridge
