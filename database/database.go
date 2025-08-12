@@ -42,8 +42,6 @@ func InitDB() {
 		poolConfig.MaxConnIdleTime = 5 * time.Minute
 		poolConfig.MaxConnLifetime = time.Hour
 		poolConfig.HealthCheckPeriod = time.Minute
-		
-		poolConfig.ConnConfig.DefaultQueryExecMode = pgxpool.QueryExecMode
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
