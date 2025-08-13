@@ -12,32 +12,34 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"log"
 	"os"
+	"path/filepath"
 	"time"
 )
 
 var (
 	PrivateKey *rsa.PrivateKey
-	PublicKey  *rsa.PublicKey
+	PublicKey  *rsa.PublicKey
 )
 
-// Claims mendefinisikan struktur untuk token JWT
 type Claims struct {
-	UserID int32                   `json:"user_id"`
-	Email  string                  `json:"email"`
-	Roles  []repo.AllRoleClientRow `json:"roles,omitempty"`
+	UserID int32                   `json:"user_id"`
+	Email  string                  `json:"email"`
+	Roles  []repo.AllRoleClientRow `json:"roles,omitempty"`
 	jwt.RegisteredClaims
 }
 
-// RefreshClaims mendefinisikan struktur untuk refresh token
 type RefreshClaims struct {
-	UserID int32  `json:"user_id"`
-	Email  string `json:"email"`
+	UserID int32  `json:"user_id"`
+	Email  string `json:"email"`
 	jwt.RegisteredClaims
 }
 
-// loadKey membaca dan memproses file kunci RSA
+const rsaKeyPath = "./"
+
 func loadKey(filename string, isPrivate bool) (interface{}, error) {
-	keyBytes, err := os.ReadFile(filename)
+	safePath := filepath.Join(rsaKeyPath, filepath.Clean(filename))
+
+	keyBytes, err := os.ReadFile(safePath)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +73,6 @@ func loadKey(filename string, isPrivate bool) (interface{}, error) {
 	return rsaPubKey, nil
 }
 
-// LoadPrivateKey memuat kunci privat dari file
 func LoadPrivateKey() (*rsa.PrivateKey, error) {
 	key, err := loadKey("private.pem", true)
 	if err != nil {
@@ -80,7 +81,6 @@ func LoadPrivateKey() (*rsa.PrivateKey, error) {
 	return key.(*rsa.PrivateKey), nil
 }
 
-// LoadPublicKey memuat kunci publik dari file
 func LoadPublicKey() (*rsa.PublicKey, error) {
 	key, err := loadKey("public.pem", false)
 	if err != nil {
@@ -89,7 +89,6 @@ func LoadPublicKey() (*rsa.PublicKey, error) {
 	return key.(*rsa.PublicKey), nil
 }
 
-// InitRSAKeys menginisialisasi kunci RSA
 func CheckRSA() {
 	privateKey, err := LoadPrivateKey()
 	if err != nil {
@@ -104,7 +103,6 @@ func CheckRSA() {
 	PublicKey = publicKey
 }
 
-// CreateToken membuat access token
 func CreateToken(id int32, email string, role []repo.AllRoleClientRow) (string, error) {
 	if PrivateKey == nil {
 		return "", errors.New("private key is nil")
@@ -113,10 +111,10 @@ func CreateToken(id int32, email string, role []repo.AllRoleClientRow) (string, 
 	now := time.Now().UTC()
 	claims := Claims{
 		UserID: id,
-		Email:  email,
-		Roles:  role,
+		Email:  email,
+		Roles:  role,
 		RegisteredClaims: jwt.RegisteredClaims{
-			IssuedAt:  jwt.NewNumericDate(now),
+			IssuedAt:  jwt.NewNumericDate(now),
 			ExpiresAt: jwt.NewNumericDate(now.Add(30 * time.Second)),
 		},
 	}
@@ -125,7 +123,6 @@ func CreateToken(id int32, email string, role []repo.AllRoleClientRow) (string, 
 	return token.SignedString(PrivateKey)
 }
 
-// CreateRefreshToken membuat refresh token
 func CreateRefreshToken(id int32, email string) (string, error) {
 	if PrivateKey == nil {
 		return "", errors.New("private key is nil")
@@ -134,9 +131,9 @@ func CreateRefreshToken(id int32, email string) (string, error) {
 	now := time.Now().UTC()
 	claims := RefreshClaims{
 		UserID: id,
-		Email:  email,
+		Email:  email,
 		RegisteredClaims: jwt.RegisteredClaims{
-			IssuedAt:  jwt.NewNumericDate(now),
+			IssuedAt:  jwt.NewNumericDate(now),
 			ExpiresAt: jwt.NewNumericDate(now.Add(24 * time.Hour)),
 		},
 	}
@@ -145,7 +142,6 @@ func CreateRefreshToken(id int32, email string) (string, error) {
 	return token.SignedString(PrivateKey)
 }
 
-// AutoRefreshToken memperbarui token secara otomatis
 func AutoRefreshToken(userID int32) (string, error) {
 	user, err := db.Queries.GetClient(context.Background(), userID)
 	if err != nil {
