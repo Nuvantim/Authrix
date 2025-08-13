@@ -9,12 +9,10 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
-	"fmt"
+	"github.com/golang-jwt/jwt/v5"
 	"log"
 	"os"
 	"time"
-
-	"github.com/golang-jwt/jwt/v5"
 )
 
 var (
@@ -22,7 +20,7 @@ var (
 	PublicKey  *rsa.PublicKey
 )
 
-// Claims defines JWT access token claims
+// Claims mendefinisikan struktur untuk token JWT
 type Claims struct {
 	UserID int32                   `json:"user_id"`
 	Email  string                  `json:"email"`
@@ -30,21 +28,16 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-// RefreshClaims defines JWT refresh token claims
+// RefreshClaims mendefinisikan struktur untuk refresh token
 type RefreshClaims struct {
 	UserID int32  `json:"user_id"`
 	Email  string `json:"email"`
 	jwt.RegisteredClaims
 }
 
-// loadKey reads and parses an RSA key file securely
+// loadKey membaca dan memproses file kunci RSA
 func loadKey(filename string, isPrivate bool) (interface{}, error) {
-	// Ensure the path is safe using utils_rsa.go
-	if !IsSafePath(filename, RsaKeyPath) {
-		return nil, fmt.Errorf("invalid file path: %s", filename)
-	}
-
-	keyBytes, err := os.ReadFile(filename) // #nosec G304, path sudah tervalidasi
+	keyBytes, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
@@ -78,25 +71,25 @@ func loadKey(filename string, isPrivate bool) (interface{}, error) {
 	return rsaPubKey, nil
 }
 
-// LoadPrivateKey loads the private RSA key from file
+// LoadPrivateKey memuat kunci privat dari file
 func LoadPrivateKey() (*rsa.PrivateKey, error) {
-	key, err := loadKey(RsaKeyPath+"/private.pem", true)
+	key, err := loadKey("private.pem", true)
 	if err != nil {
 		return nil, err
 	}
 	return key.(*rsa.PrivateKey), nil
 }
 
-// LoadPublicKey loads the public RSA key from file
+// LoadPublicKey memuat kunci publik dari file
 func LoadPublicKey() (*rsa.PublicKey, error) {
-	key, err := loadKey(RsaKeyPath+"/public.pem", false)
+	key, err := loadKey("public.pem", false)
 	if err != nil {
 		return nil, err
 	}
 	return key.(*rsa.PublicKey), nil
 }
 
-// CheckRSA initializes the RSA keys
+// InitRSAKeys menginisialisasi kunci RSA
 func CheckRSA() {
 	privateKey, err := LoadPrivateKey()
 	if err != nil {
@@ -111,7 +104,7 @@ func CheckRSA() {
 	PublicKey = publicKey
 }
 
-// CreateToken generates an access token
+// CreateToken membuat access token
 func CreateToken(id int32, email string, role []repo.AllRoleClientRow) (string, error) {
 	if PrivateKey == nil {
 		return "", errors.New("private key is nil")
@@ -132,7 +125,7 @@ func CreateToken(id int32, email string, role []repo.AllRoleClientRow) (string, 
 	return token.SignedString(PrivateKey)
 }
 
-// CreateRefreshToken generates a refresh token
+// CreateRefreshToken membuat refresh token
 func CreateRefreshToken(id int32, email string) (string, error) {
 	if PrivateKey == nil {
 		return "", errors.New("private key is nil")
@@ -152,7 +145,7 @@ func CreateRefreshToken(id int32, email string) (string, error) {
 	return token.SignedString(PrivateKey)
 }
 
-// AutoRefreshToken automatically refreshes the JWT token
+// AutoRefreshToken memperbarui token secara otomatis
 func AutoRefreshToken(userID int32) (string, error) {
 	user, err := db.Queries.GetClient(context.Background(), userID)
 	if err != nil {
