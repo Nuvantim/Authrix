@@ -10,7 +10,7 @@ FROM "public".user_account
 INNER JOIN "public".user_profile ON (user_account.id = user_profile.user_id) WHERE user_account.id = $1 LIMIT 1;
 
 -- name: FindEmail :one
-SELECT id, email,password FROM user_account WHERE email = $1 LIMIT 1;
+SELECT id, email,password FROM user_account WHERE email = $1;
 
 -- name: UpdateAccount :exec
 WITH updated_account AS (
