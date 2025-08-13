@@ -15,15 +15,15 @@ import (
 )
 
 var (
-	DB *pgxpool.Pool
+	DB      *pgxpool.Pool
 	Queries *repository.Queries
-	once sync.Once
+	once    sync.Once
 )
 
 func InitDB() {
 	once.Do(func() {
 		log.Println("Initializing database connection...")
-		
+
 		dbConfig, err := config.GetDatabaseConfig()
 		if err != nil {
 			log.Fatalf("Failed to get database config: %v", err)
@@ -67,7 +67,7 @@ func Fatal(err error) error {
 			pgErr.Code, pgErr.Message, pgErr.Detail, pgErr.Where)
 		return fmt.Errorf("database error: %s", pgErr.Message)
 	}
-	
+
 	log.Printf("Unexpected error: %v", err)
 	return err
 }

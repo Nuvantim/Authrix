@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
 	"strings"
 
@@ -69,4 +70,13 @@ func Validates[T any](data T) error {
 		}
 	}
 	return nil
+}
+
+// validate value range int32
+func ValID(id int) (int32, error) {
+	// validate range int32
+	if id < math.MinInt32 || id > math.MaxInt32 {
+		return 0, errors.New("out of int32 range")
+	}
+	return int32(id), nil
 }

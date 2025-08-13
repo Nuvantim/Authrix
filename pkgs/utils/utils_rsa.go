@@ -20,12 +20,15 @@ func GenRSA() {
 		if err != nil {
 			log.Println("Gagal menghasilkan kunci RSA:", err)
 		}
+		// Defined name file
+		var private string = "private.pem"
+		var public string = "public.pem"
 
-		if err := savePEMKey("private.pem", privateKey); err != nil {
+		if err := savePEMKey(private, privateKey); err != nil {
 			log.Println("Gagal menyimpan private key:", err)
 		}
 
-		if err := savePublicPEMKey("public.pem", publicKey); err != nil {
+		if err := savePublicPEMKey(public, publicKey); err != nil {
 			log.Println("Gagal menyimpan public key:", err)
 		}
 	}

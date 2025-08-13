@@ -5,8 +5,6 @@ import (
 	"api/internal/app/service"
 	resp "api/pkgs/utils"
 	"github.com/gofiber/fiber/v2"
-
-	"math"
 )
 
 func CreateRole(c *fiber.Ctx) error {
@@ -27,15 +25,17 @@ func CreateRole(c *fiber.Ctx) error {
 	return c.Status(200).JSON(resp.Pass("create role", role))
 }
 func GetRole(c *fiber.Ctx) error {
-	id, err := c.ParamsInt("id")
+	// Get id
+	params, err := c.ParamsInt("id")
 	if err != nil {
 		return c.Status(400).JSON(resp.Error("get id", err.Error()))
 	}
-	// validate range int32
-	if id < math.MinInt32 || id > math.MaxInt32{
-		return c.Status(400).JSON(resp.Error("validation", "out of int32 range "))
+	// ID Validation
+	id, err := resp.ValID(params)
+	if err != nil {
+		return c.Status(500).JSON(resp.Error("validation", err.Error()))
 	}
-	role, err := service.GetRole(int32(id))
+	role, err := service.GetRole(id)
 	if err != nil {
 		return c.Status(500).JSON(resp.Error("get role", err.Error()))
 	}
@@ -50,13 +50,15 @@ func ListRole(c *fiber.Ctx) error {
 }
 func UpdateRole(c *fiber.Ctx) error {
 	var data request.Role
-	id, err := c.ParamsInt("id")
+	// Get id
+	params, err := c.ParamsInt("id")
 	if err != nil {
 		return c.Status(400).JSON(resp.Error("get id", err.Error()))
 	}
-	// validate range int32
-	if id < math.MinInt32 || id > math.MaxInt32{
-		return c.Status(400).JSON(resp.Error("validation", "out of int32 range "))
+	// ID Validation
+	id, err := resp.ValID(params)
+	if err != nil {
+		return c.Status(500).JSON(resp.Error("validation", err.Error()))
 	}
 	//
 	if err := c.BodyParser(&data); err != nil {
@@ -67,7 +69,7 @@ func UpdateRole(c *fiber.Ctx) error {
 		return c.Status(400).JSON(resp.Error("validation data", err.Error()))
 	}
 
-	role, err := service.UpdateRole(data, int32(id))
+	role, err := service.UpdateRole(data, id)
 	if err != nil {
 		return c.Status(500).JSON(resp.Error("update password", err.Error()))
 	}
@@ -76,15 +78,17 @@ func UpdateRole(c *fiber.Ctx) error {
 
 }
 func DeleteRole(c *fiber.Ctx) error {
-	id, err := c.ParamsInt("id")
+	// Get id
+	params, err := c.ParamsInt("id")
 	if err != nil {
 		return c.Status(400).JSON(resp.Error("get id", err.Error()))
 	}
-	// validate range int32
-	if id < math.MinInt32 || id > math.MaxInt32{
-		return c.Status(400).JSON(resp.Error("validation", "out of int32 range "))
+	// ID Validation
+	id, err := resp.ValID(params)
+	if err != nil {
+		return c.Status(500).JSON(resp.Error("validation", err.Error()))
 	}
-	msg, err := service.DeleteRole(int32(id))
+	msg, err := service.DeleteRole(id)
 	if err != nil {
 		return c.Status(500).JSON(resp.Error("delete role", err.Error()))
 	}

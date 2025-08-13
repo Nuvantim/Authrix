@@ -14,8 +14,8 @@ func BearerAuth() fiber.Handler {
 		authHeader := c.Get("Authorization")
 		//Get Cookie
 		cookie := c.Get("Set-Cookie")
-        authCookie := ""
-        if parts := strings.SplitN(cookie, "refresh_token=", 2); len(parts) == 2 {
+		authCookie := ""
+		if parts := strings.SplitN(cookie, "refresh_token=", 2); len(parts) == 2 {
 			authCookie = parts[1]
 			if i := strings.Index(authCookie, ";"); i != -1 {
 				authCookie = authCookie[:i]

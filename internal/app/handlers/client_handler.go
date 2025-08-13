@@ -5,19 +5,20 @@ import (
 	"api/internal/app/service"
 	resp "api/pkgs/utils"
 	"github.com/gofiber/fiber/v2"
-	"math"
 )
 
 func GetClient(c *fiber.Ctx) error {
-	id, err := c.ParamsInt("id")
-	if err != nil{
+	// Get id
+	params, err := c.ParamsInt("id")
+	if err != nil {
 		return c.Status(400).JSON(resp.Error("get id", err.Error()))
 	}
-	// validate range int32
-	if id < math.MinInt32 || id > math.MaxInt32{
-		return c.Status(400).JSON(resp.Error("validation", "out of int32 range"))
+	// ID Validation
+	id, err := resp.ValID(params)
+	if err != nil {
+		return c.Status(500).JSON(resp.Error("validation", err.Error()))
 	}
-	client, err := service.GetClient(int32(id))
+	client, err := service.GetClient(id)
 	if err != nil {
 		return c.Status(500).JSON(resp.Error("get client data", err.Error()))
 	}
@@ -33,13 +34,15 @@ func ListClient(c *fiber.Ctx) error {
 }
 
 func UpdateClient(c *fiber.Ctx) error {
-	id, err := c.ParamsInt("id")
+	// Get id
+	params, err := c.ParamsInt("id")
 	if err != nil {
-		return c.Status(400).JSON(resp.Error("parser id", err.Error()))
+		return c.Status(400).JSON(resp.Error("get id", err.Error()))
 	}
-	// validate range int32
-	if id < math.MinInt32 || id > math.MaxInt32{
-		return c.Status(400).JSON(resp.Error("validation", "out of int32 range"))
+	// ID Validation
+	id, err := resp.ValID(params)
+	if err != nil {
+		return c.Status(500).JSON(resp.Error("validation", err.Error()))
 	}
 	var data request.UpdateClient
 
@@ -51,7 +54,7 @@ func UpdateClient(c *fiber.Ctx) error {
 		return c.Status(400).JSON(resp.Error("validation data", err.Error()))
 	}
 
-	client, err := service.UpdateClient(int32(id), data)
+	client, err := service.UpdateClient(id, data)
 	if err != nil {
 		return c.Status(500).JSON(resp.Error("update client", err.Error()))
 	}
@@ -59,15 +62,17 @@ func UpdateClient(c *fiber.Ctx) error {
 }
 
 func DeleteClient(c *fiber.Ctx) error {
-	id, err := c.ParamsInt("id")
+	// Get id
+	params, err := c.ParamsInt("id")
 	if err != nil {
-		return c.Status(400).JSON(resp.Error("parser id", err.Error()))
+		return c.Status(400).JSON(resp.Error("get id", err.Error()))
 	}
-	// validate range int32
-	if id < math.MinInt32 || id > math.MaxInt32{
-		return c.Status(400).JSON(resp.Error("validation", "out of int32 range"))
+	// ID Validation
+	id, err := resp.ValID(params)
+	if err != nil {
+		return c.Status(500).JSON(resp.Error("validation", err.Error()))
 	}
-	message, err := service.DeleteClient(int32(id))
+	message, err := service.DeleteClient(id)
 	if err != nil {
 		c.Status(500).JSON(resp.Error("delete client", err.Error()))
 	}
