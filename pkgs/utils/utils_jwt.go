@@ -12,16 +12,14 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
 var (
-	PrivateKey  *rsa.PrivateKey
-	PublicKey   *rsa.PublicKey
-	rsaKeyPath  = "./" // base directory for RSA keys
+	PrivateKey *rsa.PrivateKey
+	PublicKey  *rsa.PublicKey
 )
 
 // Claims defines JWT access token claims
@@ -39,24 +37,14 @@ type RefreshClaims struct {
 	jwt.RegisteredClaims
 }
 
-// isSafePath ensures the file path stays within the allowed base directory
-func isSafePath(filePath, baseDir string) bool {
-	absBase, err1 := filepath.Abs(baseDir)
-	absTarget, err2 := filepath.Abs(filePath)
-	if err1 != nil || err2 != nil {
-		return false
-	}
-	return filepath.Dir(absTarget) == absBase
-}
-
 // loadKey reads and parses an RSA key file securely
 func loadKey(filename string, isPrivate bool) (interface{}, error) {
-	// Ensure the path is safe
-	if !isSafePath(filename, rsaKeyPath) {
+	// Ensure the path is safe using utils_rsa.go
+	if !IsSafePath(filename, RsaKeyPath) {
 		return nil, fmt.Errorf("invalid file path: %s", filename)
 	}
 
-	keyBytes, err := os.ReadFile(filename)
+	keyBytes, err := os.ReadFile(filename) // #nosec G304, path sudah tervalidasi
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +80,7 @@ func loadKey(filename string, isPrivate bool) (interface{}, error) {
 
 // LoadPrivateKey loads the private RSA key from file
 func LoadPrivateKey() (*rsa.PrivateKey, error) {
-	key, err := loadKey("private.pem", true)
+	key, err := loadKey(RsaKeyPath+"/private.pem", true)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +89,7 @@ func LoadPrivateKey() (*rsa.PrivateKey, error) {
 
 // LoadPublicKey loads the public RSA key from file
 func LoadPublicKey() (*rsa.PublicKey, error) {
-	key, err := loadKey("public.pem", false)
+	key, err := loadKey(RsaKeyPath+"/public.pem", false)
 	if err != nil {
 		return nil, err
 	}
