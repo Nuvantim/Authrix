@@ -7,33 +7,39 @@ import (
 	"encoding/pem"
 	"log"
 	"os"
+	"path/filepath"
 )
 
-func GenRSA() {
-	// Check RSA file
-	_, err_public := os.Stat("public.pem")
-	_, err_private := os.Stat("private.pem")
+// rsaKeyPath is the directory where the RSA keys are stored.
+const rsaKeyPath = "./"
 
-	if os.IsNotExist(err_public) || os.IsNotExist(err_private) {
+// GenRSA checks for the existence of RSA key files and generates a new key pair if they are missing.
+func GenRSA() {
+	privateKeyPath := filepath.Join(rsaKeyPath, "private.pem")
+	publicKeyPath := filepath.Join(rsaKeyPath, "public.pem")
+
+	_, errPublic := os.Stat(publicKeyPath)
+	_, errPrivate := os.Stat(privateKeyPath)
+
+	if os.IsNotExist(errPublic) || os.IsNotExist(errPrivate) {
 		print("Generate RSA key....")
 		privateKey, publicKey, err := generateRSAKeyPair(4096)
 		if err != nil {
 			log.Println("Gagal menghasilkan kunci RSA:", err)
+			return
 		}
-		// Defined name file
-		var private string = "private.pem"
-		var public string = "public.pem"
 
-		if err := savePEMKey(private, privateKey); err != nil {
+		if err := savePEMKey(privateKeyPath, privateKey); err != nil {
 			log.Println("Gagal menyimpan private key:", err)
 		}
 
-		if err := savePublicPEMKey(public, publicKey); err != nil {
+		if err := savePublicPEMKey(publicKeyPath, publicKey); err != nil {
 			log.Println("Gagal menyimpan public key:", err)
 		}
 	}
 }
 
+// generateRSAKeyPair generates a new RSA key pair with the specified number of bits.
 func generateRSAKeyPair(bits int) (*rsa.PrivateKey, *rsa.PublicKey, error) {
 	privateKey, err := rsa.GenerateKey(rand.Reader, bits)
 	if err != nil {
@@ -42,6 +48,7 @@ func generateRSAKeyPair(bits int) (*rsa.PrivateKey, *rsa.PublicKey, error) {
 	return privateKey, &privateKey.PublicKey, nil
 }
 
+// savePEMKey saves an RSA private key to a file in PEM format.
 func savePEMKey(filename string, key *rsa.PrivateKey) error {
 	file, err := os.Create(filename)
 	if err != nil {
@@ -51,12 +58,13 @@ func savePEMKey(filename string, key *rsa.PrivateKey) error {
 
 	privateKeyBytes := x509.MarshalPKCS1PrivateKey(key)
 	privateKeyPEM := &pem.Block{
-		Type:  "RSA PRIVATE KEY",
+		Type: "RSA PRIVATE KEY",
 		Bytes: privateKeyBytes,
 	}
 	return pem.Encode(file, privateKeyPEM)
 }
 
+// savePublicPEMKey saves an RSA public key to a file in PEM format.
 func savePublicPEMKey(filename string, pubkey *rsa.PublicKey) error {
 	file, err := os.Create(filename)
 	if err != nil {
@@ -70,7 +78,7 @@ func savePublicPEMKey(filename string, pubkey *rsa.PublicKey) error {
 	}
 
 	publicKeyPEM := &pem.Block{
-		Type:  "PUBLIC KEY",
+		Type: "PUBLIC KEY",
 		Bytes: publicKeyBytes,
 	}
 	return pem.Encode(file, publicKeyPEM)
