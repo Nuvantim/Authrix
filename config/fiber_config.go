@@ -17,7 +17,7 @@ import (
 // FiberConfig berisi konfigurasi Fiber yang aman
 func FiberConfig() fiber.Config {
 	// set folder views as html rendering
-	engine := html.New("views", ".html")
+	engine := html.New("./views", ".html")
 
 	// Get Environtmet Server Config
 	var envServ, err = GetServerConfig()
