@@ -53,7 +53,7 @@ eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJlbWFpbCI6ImthbHZlaXJAZ21
 ```json
 {
   "user_id": 1,
-  "email": "kalveir@gmail.com",
+  "email": "nuvantim@gmail.com",
   "roles": [
     {
       "id": 1,
@@ -79,7 +79,7 @@ eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJlbWFpbCI6ImthbHZlaXJAZ21
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/Kalveir/Authrix.git
+git clone https://github.com/Nuvantim/Authrix.git
 cd Authrix
 ```
 
@@ -127,7 +127,7 @@ go run cmd/main.go
 ## Deployment 📦
 For the deployment process using [Docker](https://www.docker.com/), make sure docker is installed on your server
 ### 1. Environment Variables
-The database configuration is adjusted in the file [docker-compose.yml](https://github.com/Kalveir/GoStoreAPI/blob/main/docker-compose.yml)
+The database configuration is adjusted in the file [docker-compose.yml](https://github.com/Nuvantim/GoStoreAPI/blob/main/docker-compose.yml)
 ```bash
 mv .env.prod .env
 ```
