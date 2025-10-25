@@ -1,9 +1,12 @@
 package middleware
 
 import (
-	"api/pkgs/utils"
+	"api/pkgs/guards"
+	"api/pkgs/utils/responses"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
+
 	"log"
 	"strings"
 )
@@ -29,17 +32,17 @@ func BearerAuth() fiber.Handler {
 
 		// Validasi access token
 		if tokenString != "" {
-			token, err := jwt.ParseWithClaims(tokenString, &utils.Claims{}, func(token *jwt.Token) (interface{}, error) {
+			token, err := jwt.ParseWithClaims(tokenString, &guard.Claims{}, func(token *jwt.Token) (interface{}, error) {
 				// Pastikan metode signing adalah RS512
 				if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok || token.Method.Alg() != "RS256" {
 					return nil, jwt.ErrSignatureInvalid
 				}
-				return utils.PublicKey, nil
+				return guard.PublicKey, nil
 			})
 
 			// Jika access token valid, set user context dan lanjutkan
 			if err == nil && token.Valid {
-				if claims, ok := token.Claims.(*utils.Claims); ok {
+				if claims, ok := token.Claims.(*guard.Claims); ok {
 					c.Locals("user_id", claims.UserID)
 					c.Locals("email", claims.Email)
 					c.Locals("roles", claims.Roles)
@@ -49,28 +52,28 @@ func BearerAuth() fiber.Handler {
 			} else {
 				// Jika access token tidak valid, coba refresh token
 				if authHeader != "" && authCookie != "" {
-					refreshToken, err := jwt.ParseWithClaims(authCookie, &utils.RefreshClaims{}, func(token *jwt.Token) (interface{}, error) {
+					refreshToken, err := jwt.ParseWithClaims(authCookie, &guard.RefreshClaims{}, func(token *jwt.Token) (interface{}, error) {
 						// Pastikan metode signing adalah RS512
 						if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok || token.Method.Alg() != "RS256" {
 							return nil, jwt.ErrSignatureInvalid
 						}
-						return utils.PublicKey, nil
+						return guard.PublicKey, nil
 					})
 
 					if err == nil && refreshToken.Valid {
-						if claims, ok := refreshToken.Claims.(*utils.RefreshClaims); ok {
-							newAccessToken, err := utils.AutoRefreshToken(claims.UserID)
+						if claims, ok := refreshToken.Claims.(*guard.RefreshClaims); ok {
+							newAccessToken, err := guard.AutoRefreshToken(claims.UserID)
 							if err == nil {
 								// Validasi token baru
-								token, err := jwt.ParseWithClaims(newAccessToken, &utils.Claims{}, func(token *jwt.Token) (interface{}, error) {
+								token, err := jwt.ParseWithClaims(newAccessToken, &guard.Claims{}, func(token *jwt.Token) (interface{}, error) {
 									if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok || token.Method.Alg() != "RS256" {
 										return nil, jwt.ErrSignatureInvalid
 									}
-									return utils.PublicKey, nil
+									return guard.PublicKey, nil
 								})
 
 								if err == nil && token.Valid {
-									if claims, ok := token.Claims.(*utils.Claims); ok {
+									if claims, ok := token.Claims.(*guard.Claims); ok {
 										c.Locals("user_id", claims.UserID)
 										c.Locals("email", claims.Email)
 										c.Locals("roles", claims.Roles)
@@ -92,6 +95,6 @@ func BearerAuth() fiber.Handler {
 		}
 
 		// Jika kedua token tidak valid, kembalikan response unauthorized
-		return c.Status(fiber.StatusUnauthorized).JSON(utils.Error("authentication", "authentication required"))
+		return c.Status(fiber.StatusUnauthorized).JSON(response.Error("authentication", "authentication required"))
 	}
 }

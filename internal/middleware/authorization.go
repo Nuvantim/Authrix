@@ -2,7 +2,7 @@ package middleware
 
 import (
 	repo "api/internal/app/repository"
-	resp "api/pkgs/utils"
+	"api/pkgs/utils/responses"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -22,7 +22,7 @@ func Role(requiredRole string) fiber.Handler {
 		}
 
 		if !hasRole {
-			return c.Status(fiber.StatusForbidden).JSON(resp.Error("authorization", "role forbidden"))
+			return c.Status(fiber.StatusForbidden).JSON(response.Error("authorization", "role forbidden"))
 		}
 
 		return c.Next()
@@ -53,7 +53,7 @@ func Permission(requiredPermission string) fiber.Handler {
 		}
 
 		if !hasPermission {
-			return c.Status(fiber.StatusForbidden).JSON(resp.Error("authorization", "permission forbidden"))
+			return c.Status(fiber.StatusForbidden).JSON(response.Error("authorization", "permission forbidden"))
 		}
 
 		return c.Next()

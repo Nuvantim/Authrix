@@ -4,7 +4,7 @@ import (
 	db "api/database"
 	repo "api/internal/app/repository"
 	req "api/internal/app/request"
-	"api/pkgs/utils"
+	"api/pkgs/guards"
 
 	ctx "context"
 	"errors"
@@ -13,7 +13,7 @@ import (
 )
 
 func SendOTP(email string) (string, error) {
-	otp := utils.GenerateOTP()
+	otp := guard.GenerateOTP()
 
 	token := repo.CreateOTPParams{
 		Code:  otp,
@@ -25,7 +25,7 @@ func SendOTP(email string) (string, error) {
 	}
 
 	// send otp via email
-	if error := utils.SendOTP(token.Email, token.Code); error != nil {
+	if error := guard.SendOTP(token.Email, token.Code); error != nil {
 		return "", error
 	}
 
@@ -49,7 +49,7 @@ func Register(regist req.Register) (string, error) {
 		return "", errors.New("otp not found or invalid")
 	}
 
-	var pass = utils.HashBycrypt(regist.Password) // Hashing Password
+	var pass = guard.HashBycrypt(regist.Password) // Hashing Password
 	// Regist New User
 	createUser := repo.CreateUserParams{
 		Name:     regist.Name,
@@ -103,12 +103,12 @@ func Login(login req.Login) (string, string, error) {
 	}
 	// Input jwt data
 	// Create access token and refresh token
-	accessToken, err := utils.CreateToken(data.ID, data.Email, role)
+	accessToken, err := guard.CreateToken(data.ID, data.Email, role)
 	if err != nil {
 		return "", "", db.Fatal(err)
 	}
 
-	refreshToken, err := utils.CreateRefreshToken(data.ID, data.Email)
+	refreshToken, err := guard.CreateRefreshToken(data.ID, data.Email)
 	if err != nil {
 		return "", "", db.Fatal(err)
 	}
@@ -137,7 +137,7 @@ func ResetPassword(pass req.ResetPassword) (string, error) {
 	}
 
 	// UpdatePassword
-	psw := utils.HashBycrypt(pass.Password) //Hashing Password
+	psw := guard.HashBycrypt(pass.Password) //Hashing Password
 	resetPassword := repo.ResetPasswordParams{
 		Email:    email_search.Email,
 		Password: string(psw),

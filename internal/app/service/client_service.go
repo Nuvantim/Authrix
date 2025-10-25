@@ -4,7 +4,7 @@ import (
 	db "api/database"
 	repo "api/internal/app/repository"
 	req "api/internal/app/request"
-	"api/pkgs/utils"
+	"api/pkgs/guards"
 
 	ctx "context"
 	str "strings"
@@ -44,7 +44,7 @@ func UpdateClient(Id int32, client req.UpdateClient) (req.GetClient, error) {
 	}
 
 	if str.TrimSpace(client.Password) != "" {
-		psw := utils.HashBycrypt(client.Password)
+		psw := guard.HashBycrypt(client.Password)
 		update_data.Column4 = string(psw)
 	}
 

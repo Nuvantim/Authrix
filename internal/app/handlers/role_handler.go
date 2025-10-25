@@ -3,94 +3,95 @@ package handler
 import (
 	"api/internal/app/request"
 	"api/internal/app/service"
-	resp "api/pkgs/utils"
+	"api/pkgs/utils/responses"
+	"api/pkgs/utils/validates"
 	"github.com/gofiber/fiber/v2"
 )
 
 func CreateRole(c *fiber.Ctx) error {
 	var data request.Role
 	if err := c.BodyParser(&data); err != nil {
-		return c.Status(400).JSON(resp.Error("parser json", err.Error()))
+		return c.Status(400).JSON(response.Error("parser json", err.Error()))
 	}
 
 	// validate data
-	if err := resp.Validates(data); err != nil {
-		return c.Status(400).JSON(resp.Error("validation data", err.Error()))
+	if err := validate.BodyStructs(data); err != nil {
+		return c.Status(400).JSON(response.Error("validation data", err.Error()))
 	}
 
 	role, err := service.CreateRole(data)
 	if err != nil {
-		return c.Status(500).JSON(resp.Error("create role", err.Error()))
+		return c.Status(500).JSON(response.Error("create role", err.Error()))
 	}
-	return c.Status(200).JSON(resp.Pass("create role", role))
+	return c.Status(200).JSON(response.Pass("create role", role))
 }
 func GetRole(c *fiber.Ctx) error {
 	// Get id
 	params, err := c.ParamsInt("id")
 	if err != nil {
-		return c.Status(400).JSON(resp.Error("get id", err.Error()))
+		return c.Status(400).JSON(response.Error("get id", err.Error()))
 	}
 	// ID Validation
-	id, err := resp.ValID(params)
+	id, err := validate.ValID(params)
 	if err != nil {
-		return c.Status(500).JSON(resp.Error("validation", err.Error()))
+		return c.Status(500).JSON(response.Error("validation", err.Error()))
 	}
 	role, err := service.GetRole(id)
 	if err != nil {
-		return c.Status(500).JSON(resp.Error("get role", err.Error()))
+		return c.Status(500).JSON(response.Error("get role", err.Error()))
 	}
-	return c.Status(200).JSON(resp.Pass("get role", role))
+	return c.Status(200).JSON(response.Pass("get role", role))
 }
 func ListRole(c *fiber.Ctx) error {
 	role, err := service.ListRole()
 	if err != nil {
-		return c.Status(500).JSON(resp.Error("list role", err.Error()))
+		return c.Status(500).JSON(response.Error("list role", err.Error()))
 	}
-	return c.Status(200).JSON(resp.Pass("list role", role))
+	return c.Status(200).JSON(response.Pass("list role", role))
 }
 func UpdateRole(c *fiber.Ctx) error {
 	var data request.Role
 	// Get id
 	params, err := c.ParamsInt("id")
 	if err != nil {
-		return c.Status(400).JSON(resp.Error("get id", err.Error()))
+		return c.Status(400).JSON(response.Error("get id", err.Error()))
 	}
 	// ID Validation
-	id, err := resp.ValID(params)
+	id, err := validate.ValID(params)
 	if err != nil {
-		return c.Status(500).JSON(resp.Error("validation", err.Error()))
+		return c.Status(500).JSON(response.Error("validation", err.Error()))
 	}
 	//
 	if err := c.BodyParser(&data); err != nil {
-		return c.Status(400).JSON(resp.Error("parser json", err.Error()))
+		return c.Status(400).JSON(response.Error("parser json", err.Error()))
 	}
 	// validate data
-	if err := resp.Validates(data); err != nil {
-		return c.Status(400).JSON(resp.Error("validation data", err.Error()))
+	if err := validate.BodyStructs(data); err != nil {
+		return c.Status(400).JSON(response.Error("validation data", err.Error()))
 	}
 
 	role, err := service.UpdateRole(data, id)
 	if err != nil {
-		return c.Status(500).JSON(resp.Error("update password", err.Error()))
+		return c.Status(500).JSON(response.Error("update password", err.Error()))
 	}
 
-	return c.Status(200).JSON(resp.Pass("update role", role))
+	return c.Status(200).JSON(response.Pass("update role", role))
 
 }
 func DeleteRole(c *fiber.Ctx) error {
 	// Get id
 	params, err := c.ParamsInt("id")
 	if err != nil {
-		return c.Status(400).JSON(resp.Error("get id", err.Error()))
+		return c.Status(400).JSON(response.Error("get id", err.Error()))
 	}
 	// ID Validation
-	id, err := resp.ValID(params)
+	id, err := validate.ValID(params)
 	if err != nil {
-		return c.Status(500).JSON(resp.Error("validation", err.Error()))
+		return c.Status(500).JSON(response.Error("validation", err.Error()))
 	}
 	msg, err := service.DeleteRole(id)
 	if err != nil {
-		return c.Status(500).JSON(resp.Error("delete role", err.Error()))
+		return c.Status(500).JSON(response.Error("delete role", err.Error()))
 	}
-	return c.Status(200).JSON(resp.Pass(msg, struct{}{}))
+	return c.Status(200).JSON(response.Pass(msg, struct{}{}))
 }

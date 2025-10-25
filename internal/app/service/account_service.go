@@ -4,7 +4,7 @@ import (
 	db "api/database"
 	repo "api/internal/app/repository"
 	req "api/internal/app/request"
-	"api/pkgs/utils"
+	"api/pkgs/guards"
 
 	ctx "context"
 	"errors"
@@ -41,7 +41,7 @@ func UpdateAccount(user req.UpdateAccount, userIDs int32) (repo.GetProfileRow, e
 	go func() {
 		// Update password is available
 		if str.TrimSpace(user.Password) != "" {
-			psw := utils.HashBycrypt(user.Password)
+			psw := guard.HashBycrypt(user.Password)
 			passUpdate := repo.UpdatePasswordParams{
 				ID:       userIDs,
 				Password: string(psw),
