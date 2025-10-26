@@ -2,12 +2,14 @@ package service
 
 import (
 	db "api/database"
+	rds "api/cache"
 	repo "api/internal/app/repository"
 	req "api/internal/app/request"
 	"api/pkgs/guards"
 
 	ctx "context"
 	"errors"
+	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -20,8 +22,9 @@ func SendOTP(email string) (string, error) {
 		Email: email,
 	}
 
-	if err := db.Queries.CreateOTP(ctx.Background(), token); err != nil {
-		return "", db.Fatal(err)
+	var key string = fmt.Sprintf("verif:%d",token.Code)
+	if err := rds.SetData(key, token);err != nil{
+		return "",err
 	}
 
 	// send otp via email
@@ -35,18 +38,20 @@ func SendOTP(email string) (string, error) {
 
 func Register(regist req.Register) (string, error) {
 	// search otp code & email
+	var data repo.FindOtpByEmailParams
 	searchOtp := repo.FindOtpByEmailParams{
 		Code:  regist.Code,
 		Email: regist.Email,
 	}
 
-	otpSearch, err := db.Queries.FindOtpByEmail(ctx.Background(), searchOtp)
+	// search otp
+	var value string = fmt.Sprintf("verif:%d", searchOtp.Code)
+	result, err := rds.GetData(value, data)
 	if err != nil {
-		return "", db.Fatal(err)
+		return "",err
 	}
-
-	if otpSearch == 0 {
-		return "", errors.New("otp not found or invalid")
+	if result.Email == "" {
+		return "", fmt.Errorf("OTP not found or expired")
 	}
 
 	var pass = guard.HashBycrypt(regist.Password) // Hashing Password
@@ -69,7 +74,7 @@ func Register(regist req.Register) (string, error) {
 		}
 
 		// Delete the used OTP
-		if err := db.Queries.DeleteOTP(ctx.Background(), createUser.Email); err != nil {
+		if err := rds.DelData(value); err != nil {
 			errChan <- err // Send error if OTP deletion fails
 			return
 		}

@@ -3,6 +3,7 @@ package main
 import (
 	"api/config"
 	"api/database"
+	rds "api/cache"
 	"api/internal/server/http"
 	"api/pkgs/guards"
 
@@ -41,6 +42,8 @@ func main() {
 	config.GracefulShutdown(app, done)
 
 	<-done
+	// Close Connection redis
+	rds.RedisClose()
 	// Close Connection database
 	database.CloseDB()
 }

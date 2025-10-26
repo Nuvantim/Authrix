@@ -15,6 +15,12 @@ type DatabaseConfig struct {
 	Name     string `envconfig:"DB_NAME"`
 }
 
+type RedisConfig struct {
+	Host     string `envconfig:"REDIS_HOST"`
+	Password string `envconfig:"REDIS_PASSWORD"`
+	Port     int    `envconfig:"REDIS_PORT"`
+}
+
 type ServerConfig struct {
 	Port    string `envconfig:"PORT"`
 	AppName string `envconfig:"APP_NAME"`
@@ -42,6 +48,14 @@ func GetDatabaseConfig() (*DatabaseConfig, error) {
 		return nil, err
 	}
 	return &db, nil
+}
+
+func GetRedisConfig() (*RedisConfig, error) {
+	var rds RedisConfig
+	if err := envconfig.Process("", &rds); err != nil {
+		return nil, err
+	}
+	return &rds, nil
 }
 
 func GetServerConfig() (*ServerConfig, error) {

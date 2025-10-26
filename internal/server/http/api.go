@@ -3,6 +3,7 @@ package http
 import (
 	"api/config"
 	"api/database"
+	rds "api/cache"
 	"api/internal/routes"
 	"github.com/gofiber/fiber/v2"
 )
@@ -20,6 +21,9 @@ func ServerGo() *fiber.App {
 
 	// Start Database Connection
 	database.InitDB()
+
+	// Start redis Connection
+	rds.InitRedis()
 
 	return app
 }
