@@ -3,12 +3,32 @@ package main
 import (
 	"api/config"
 	"api/database"
-	rds "api/cache"
 	"api/internal/server/http"
 	"api/pkgs/guards"
+	rds "api/redis"
 
 	"log"
+	"os"
+	"os/exec"
+	"runtime"
 )
+
+func ClearScreen() {
+	switch runtime.GOOS {
+	case "windows":
+		cmd := exec.Command("cmd", "/c", "cls")
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		cmd.Run()
+	case "linux", "darwin":
+		cmd := exec.Command("clear")
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		cmd.Run()
+	default:
+		log.Fatal("OS not detected")
+	}
+}
 
 func main() {
 	// Check Environment
@@ -19,6 +39,9 @@ func main() {
 	guard.GenRSA()
 	// Get RSA
 	guard.CheckRSA()
+
+	// clear screen
+	ClearScreen()
 
 	// Start Server
 	app := http.ServerGo()
@@ -38,7 +61,6 @@ func main() {
 			done <- true
 		}
 	}()
-
 	config.GracefulShutdown(app, done)
 
 	<-done

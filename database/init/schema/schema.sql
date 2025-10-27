@@ -1,13 +1,5 @@
 CREATE SCHEMA IF NOT EXISTS "public";
 
-CREATE  TABLE "public".otp_token ( 
-	id                   integer  NOT NULL GENERATED  BY DEFAULT AS IDENTITY ,
-	code                 varchar DEFAULT 10 NOT NULL  ,
-	email                varchar DEFAULT 100 NOT NULL  ,
-	created_at           timestamptz DEFAULT CURRENT_DATE NOT NULL  ,
-	CONSTRAINT pk_otp_token PRIMARY KEY ( id )
- );
-
 CREATE  TABLE "public".permission ( 
 	id                   integer  NOT NULL GENERATED  BY DEFAULT AS IDENTITY ,
 	name                 varchar(100)  NOT NULL  ,

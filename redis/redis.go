@@ -1,4 +1,4 @@
-package cache
+package redis
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"time"
+	// "sync"
 
 	"github.com/redis/go-redis/v9"
 
@@ -19,6 +20,8 @@ var ctx = context.Background()
 type noopLogger struct{}
 
 func (noopLogger) Printf(_ context.Context, _ string, _ ...interface{}) {}
+
+// var once sync.Once
 
 func InitRedis() {
 	// Disable log
@@ -39,11 +42,11 @@ func InitRedis() {
 	})
 
 	// Test Connection
-	if err := rdb.Ping(ctx).Err();err != nil {
+	if err := rdb.Ping(ctx).Err(); err != nil {
 		log.Println("Failed connecting to redis:", err)
 		return
 	}
-	log.Println("Redis connected...")
+	fmt.Println("Redis connected...")
 
 	RDS = rdb
 

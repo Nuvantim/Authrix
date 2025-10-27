@@ -22,8 +22,6 @@ var (
 
 func InitDB() {
 	once.Do(func() {
-		log.Println("Initializing database connection...")
-
 		dbConfig, err := config.GetDatabaseConfig()
 		if err != nil {
 			log.Fatalf("Failed to get database config: %v", err)
@@ -56,7 +54,7 @@ func InitDB() {
 		}
 
 		Queries = repository.New(DB)
-		log.Println("Database connection successfully initialized!")
+		fmt.Println("Database connected...")
 	})
 }
 

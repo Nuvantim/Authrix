@@ -2,10 +2,10 @@ package service
 
 import (
 	db "api/database"
-	rds "api/cache"
 	repo "api/internal/app/repository"
 	req "api/internal/app/request"
 	"api/pkgs/guards"
+	rds "api/redis"
 
 	ctx "context"
 	"errors"
@@ -17,15 +17,17 @@ import (
 func SendOTP(email string) (string, error) {
 	otp := guard.GenerateOTP()
 
-	token := repo.CreateOTPParams{
+	token := req.CreateOTP{
 		Code:  otp,
 		Email: email,
 	}
 
-	var key string = fmt.Sprintf("verif:%d",token.Code)
-	if err := rds.SetData(key, token);err != nil{
-		return "",err
+	var key string = fmt.Sprintf("verif:%s", token.Code)
+	if err := rds.SetData(key, token); err != nil {
+		return "", err
 	}
+
+	fmt.Println(otp)
 
 	// send otp via email
 	if error := guard.SendOTP(token.Email, token.Code); error != nil {
@@ -37,21 +39,19 @@ func SendOTP(email string) (string, error) {
 }
 
 func Register(regist req.Register) (string, error) {
-	// search otp code & email
-	var data repo.FindOtpByEmailParams
-	searchOtp := repo.FindOtpByEmailParams{
-		Code:  regist.Code,
-		Email: regist.Email,
-	}
-
+	var data req.CreateOTP
 	// search otp
-	var value string = fmt.Sprintf("verif:%d", searchOtp.Code)
+	var value string = fmt.Sprintf("verif:%s", regist.Code)
 	result, err := rds.GetData(value, data)
 	if err != nil {
-		return "",err
+		return "", err
 	}
 	if result.Email == "" {
 		return "", fmt.Errorf("OTP not found or expired")
+	}
+
+	if result.Email != regist.Email {
+		return "", fmt.Errorf("registration rejected !")
 	}
 
 	var pass = guard.HashBycrypt(regist.Password) // Hashing Password
@@ -62,13 +62,18 @@ func Register(regist req.Register) (string, error) {
 		Password: string(pass),
 	}
 
+	// create user_account
+	id_user, err := db.Queries.CreateUser(ctx.Background(), createUser)
+	if err != nil {
+		return "", db.Fatal(err)
+	}
 	// Create a buffered channel to receive any error from the goroutine
 	errChan := make(chan error, 1)
 
 	// Run user creation and OTP deletion in a separate goroutine
 	go func() {
-		// Create the user
-		if err := db.Queries.CreateUser(ctx.Background(), createUser); err != nil {
+		// Create the user_profile
+		if err := db.Queries.CreateProfile(ctx.Background(), id_user); err != nil {
 			errChan <- err // Send error if user creation fails
 			return
 		}
@@ -85,7 +90,7 @@ func Register(regist req.Register) (string, error) {
 
 	// Wait for the result from the goroutine
 	if err := <-errChan; err != nil {
-		return "", db.Fatal(err)
+		return "", err
 	}
 
 	return "your account has been created, please login", nil
@@ -123,15 +128,19 @@ func Login(login req.Login) (string, string, error) {
 }
 
 func ResetPassword(pass req.ResetPassword) (string, error) {
-
 	// Check Code Otp
-	otp_search, err := db.Queries.FindOTP(ctx.Background(), pass.Code)
+	var data req.CreateOTP
+	var value string = fmt.Sprintf("verif:%s", pass.Code)
+	result, err := rds.GetData(value, data)
 	if err != nil {
-		return "", errors.New("otp code not found")
+		return "", err
+	}
+	if result.Email == "" {
+		return "", fmt.Errorf("OTP not found or expired")
 	}
 
 	// Check Email User Account
-	email_search, err := db.Queries.FindEmail(ctx.Background(), otp_search.Email)
+	email_search, err := db.Queries.FindEmail(ctx.Background(), result.Email)
 	if err != nil {
 		return "", errors.New("email not found")
 	}
@@ -160,7 +169,7 @@ func ResetPassword(pass req.ResetPassword) (string, error) {
 		}
 
 		// Delete OTP code by email
-		if err := db.Queries.DeleteOTP(ctx.Background(), email_search.Email); err != nil {
+		if err := rds.DelData(value); err != nil {
 			errChan <- err
 			return
 		}

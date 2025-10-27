@@ -1,8 +1,11 @@
--- name: CreateUser :exec
-WITH new_user AS(
-	INSERT INTO user_account(name,email,password) VALUES ($1,$2,$3) RETURNING id
-	)
-INSERT INTO user_profile (user_id) SELECT id FROM new_user;
+-- name: CreateUser :one
+INSERT INTO user_account(name,email,password) 
+VALUES ($1,$2,$3) 
+RETURNING id;
+
+-- name: CreateProfile :exec
+INSERT INTO user_profile (user_id) 
+VALUES ($1);
 
 -- name: GetProfile :one
 SELECT sqlc.embed(user_account), sqlc.embed(user_profile)
