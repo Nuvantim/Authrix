@@ -75,7 +75,7 @@ func DeleteClient(c *fiber.Ctx) error {
 	}
 	message, err := service.DeleteClient(id)
 	if err != nil {
-		c.Status(500).JSON(response.Error("delete client", err.Error()))
+		return c.Status(500).JSON(response.Error("delete client", err.Error()))
 	}
 
 	return c.Status(200).JSON(response.Pass(message, struct{}{}))

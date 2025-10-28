@@ -21,7 +21,7 @@ func ClearScreen() {
 		cmd.Stderr = os.Stderr
 		cmd.Run()
 	case "linux", "darwin":
-		cmd := exec.Command("clear")
+		cmd := exec.Command("/usr/bin/clear")
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		cmd.Run()

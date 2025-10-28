@@ -25,5 +25,4 @@ go.work.sum
 .env
 
 # .pem file
-public.pem
-private.pem
+screet-key/*

@@ -11,9 +11,7 @@ import (
 	"path/filepath"
 )
 
-// rsaKeyPath is the directory where the RSA keys are stored.
-// Change this path if you want to store keys in a different folder.
-const rsaKeyPath = "./"
+const rsaKeyPath = "./screet-key"
 
 // GenRSA checks if RSA key files exist; if not, it generates a new key pair.
 func GenRSA() {
@@ -58,7 +56,8 @@ func savePEMKey(filename string, key *rsa.PrivateKey) error {
 		return fmt.Errorf("invalid file path: %s", filename)
 	}
 
-	file, err := os.Create(filename)
+	fullpath := filepath.Join(rsaKeyPath, filepath.Base(filename))
+	file, err := os.Create(fullpath)
 	if err != nil {
 		return err
 	}
@@ -78,8 +77,8 @@ func savePublicPEMKey(filename string, pubkey *rsa.PublicKey) error {
 	if !isSafePath(filename, rsaKeyPath) {
 		return fmt.Errorf("invalid file path: %s", filename)
 	}
-
-	file, err := os.Create(filename)
+	fullpath := filepath.Join(rsaKeyPath, filepath.Base(filename))
+	file, err := os.Create(fullpath)
 	if err != nil {
 		return err
 	}

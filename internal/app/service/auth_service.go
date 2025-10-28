@@ -50,8 +50,9 @@ func Register(regist req.Register) (string, error) {
 		return "", fmt.Errorf("OTP not found or expired")
 	}
 
+	// check email
 	if result.Email != regist.Email {
-		return "", fmt.Errorf("registration rejected !")
+		return "", fmt.Errorf("registration rejected")
 	}
 
 	var pass = guard.HashBycrypt(regist.Password) // Hashing Password
@@ -74,7 +75,7 @@ func Register(regist req.Register) (string, error) {
 	go func() {
 		// Create the user_profile
 		if err := db.Queries.CreateProfile(ctx.Background(), id_user); err != nil {
-			errChan <- err // Send error if user creation fails
+			errChan <- db.Fatal(err) // Send error if user creation fails
 			return
 		}
 
@@ -164,7 +165,7 @@ func ResetPassword(pass req.ResetPassword) (string, error) {
 
 		// Try to update the password
 		if err := db.Queries.ResetPassword(ctx.Background(), resetPassword); err != nil {
-			errChan <- err
+			errChan <- db.Fatal(err)
 			return
 		}
 
@@ -177,7 +178,7 @@ func ResetPassword(pass req.ResetPassword) (string, error) {
 	}()
 
 	if err := <-errChan; err != nil {
-		return "", db.Fatal(err)
+		return "", err
 	}
 
 	return "reset password successfully", nil

@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"sync"
 	"time"
-	// "sync"
 
 	"github.com/redis/go-redis/v9"
 
@@ -21,40 +21,44 @@ type noopLogger struct{}
 
 func (noopLogger) Printf(_ context.Context, _ string, _ ...interface{}) {}
 
-// var once sync.Once
+var once sync.Once
 
 func InitRedis() {
 	// Disable log
 	redis.SetLogger(noopLogger{})
+	once.Do(func() {
+		rdsConfig, err := config.GetRedisConfig()
+		if err != nil {
+			log.Fatalf("Failed to get database config: %v", err)
+		}
 
-	rdsConfig, err := config.GetRedisConfig()
-	if err != nil {
-		log.Fatalf("Failed to get database config: %v", err)
-	}
+		// Initialization Redia Connection
+		rdb := redis.NewClient(&redis.Options{
+			Addr:            fmt.Sprintf("%s:%d", rdsConfig.Host, rdsConfig.Port),
+			Password:        rdsConfig.Password,
+			DB:              0,
+			ReadBufferSize:  1024 * 1024,
+			WriteBufferSize: 1024 * 1024,
+		})
 
-	// Initialization Redia Connection
-	rdb := redis.NewClient(&redis.Options{
-		Addr:            fmt.Sprintf("%s:%d", rdsConfig.Host, rdsConfig.Port),
-		Password:        rdsConfig.Password,
-		DB:              0,
-		ReadBufferSize:  1024 * 1024,
-		WriteBufferSize: 1024 * 1024,
+		// Test Connection
+		if err := rdb.Ping(ctx).Err(); err != nil {
+			log.Println("Failed connecting to redis:", err)
+			return
+		}
+		fmt.Println("Redis connected...")
+
+		RDS = rdb
 	})
-
-	// Test Connection
-	if err := rdb.Ping(ctx).Err(); err != nil {
-		log.Println("Failed connecting to redis:", err)
-		return
-	}
-	fmt.Println("Redis connected...")
-
-	RDS = rdb
 
 }
 
 func RedisClose() {
-	RDS.Close()
-	log.Println("Success close Redis conncetion...")
+	if err := RDS.Close(); err != nil {
+		log.Println("Failed close Redis : ", err)
+	} else {
+		log.Println("Success close Redis conncetion...")
+	}
 }
 
 func SetData[T any](key string, data T) error {
