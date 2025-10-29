@@ -19,12 +19,16 @@ func ClearScreen() {
 		cmd := exec.Command("cmd", "/c", "cls")
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
-		cmd.Run()
+		if err := cmd.Run(); err != nil {
+			log.Fatal(err)
+		}
 	case "linux", "darwin":
 		cmd := exec.Command("/usr/bin/clear")
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
-		cmd.Run()
+		if err := cmd.Run(); err != nil {
+			log.Fatal(err)
+		}
 	default:
 		log.Fatal("OS not detected")
 	}

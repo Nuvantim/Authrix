@@ -9,19 +9,25 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
-const rsaKeyPath = "./screet-key"
+var rsaKeyPath = "./screet-key"
 
-// GenRSA checks if RSA key files exist; if not, it generates a new key pair.
+// GenRSA generates an RSA key pair if the key files don't exist.
 func GenRSA() {
+	// Create folder if not exists
+	if err := os.MkdirAll(rsaKeyPath, 0700); err != nil {
+		log.Println("Failed to create directory:", err)
+		return
+	}
+
 	privateKeyPath := filepath.Join(rsaKeyPath, "private.pem")
 	publicKeyPath := filepath.Join(rsaKeyPath, "public.pem")
 
 	_, errPublic := os.Stat(publicKeyPath)
 	_, errPrivate := os.Stat(privateKeyPath)
 
-	// If either public or private key file does not exist, generate new keys
 	if os.IsNotExist(errPublic) || os.IsNotExist(errPrivate) {
 		fmt.Println("Generating RSA key pair...")
 		privateKey, publicKey, err := generateRSAKeyPair(4096)
@@ -33,25 +39,23 @@ func GenRSA() {
 		if err := savePEMKey(privateKeyPath, privateKey); err != nil {
 			log.Println("Failed to save private key:", err)
 		}
-
 		if err := savePublicPEMKey(publicKeyPath, publicKey); err != nil {
 			log.Println("Failed to save public key:", err)
 		}
 	}
 }
 
-// generateRSAKeyPair creates a new RSA key pair with the specified bit size.
+// generateRSAKeyPair creates a new RSA private and public key pair.
 func generateRSAKeyPair(bits int) (*rsa.PrivateKey, *rsa.PublicKey, error) {
-	privateKey, err := rsa.GenerateKey(rand.Reader, bits)
+	key, err := rsa.GenerateKey(rand.Reader, bits)
 	if err != nil {
 		return nil, nil, err
 	}
-	return privateKey, &privateKey.PublicKey, nil
+	return key, &key.PublicKey, nil
 }
 
-// savePEMKey saves the RSA private key to a PEM-formatted file.
+// savePEMKey writes a private RSA key to a PEM file.
 func savePEMKey(filename string, key *rsa.PrivateKey) error {
-	// Ensure the file path is safe and within the allowed directory
 	if !isSafePath(filename, rsaKeyPath) {
 		return fmt.Errorf("invalid file path: %s", filename)
 	}
@@ -63,20 +67,16 @@ func savePEMKey(filename string, key *rsa.PrivateKey) error {
 	}
 	defer file.Close()
 
-	privateKeyBytes := x509.MarshalPKCS1PrivateKey(key)
-	privateKeyPEM := &pem.Block{
-		Type:  "RSA PRIVATE KEY",
-		Bytes: privateKeyBytes,
-	}
-	return pem.Encode(file, privateKeyPEM)
+	block := &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(key)}
+	return pem.Encode(file, block)
 }
 
-// savePublicPEMKey saves the RSA public key to a PEM-formatted file.
-func savePublicPEMKey(filename string, pubkey *rsa.PublicKey) error {
-	// Ensure the file path is safe and within the allowed directory
+// savePublicPEMKey writes a public RSA key to a PEM file.
+func savePublicPEMKey(filename string, pub *rsa.PublicKey) error {
 	if !isSafePath(filename, rsaKeyPath) {
 		return fmt.Errorf("invalid file path: %s", filename)
 	}
+
 	fullpath := filepath.Join(rsaKeyPath, filepath.Base(filename))
 	file, err := os.Create(fullpath)
 	if err != nil {
@@ -84,25 +84,23 @@ func savePublicPEMKey(filename string, pubkey *rsa.PublicKey) error {
 	}
 	defer file.Close()
 
-	publicKeyBytes, err := x509.MarshalPKIXPublicKey(pubkey)
+	bytes, err := x509.MarshalPKIXPublicKey(pub)
 	if err != nil {
 		return err
 	}
-
-	publicKeyPEM := &pem.Block{
-		Type:  "PUBLIC KEY",
-		Bytes: publicKeyBytes,
-	}
-	return pem.Encode(file, publicKeyPEM)
+	block := &pem.Block{Type: "PUBLIC KEY", Bytes: bytes}
+	return pem.Encode(file, block)
 }
 
-// isSafePath ensures the final absolute file path remains within the given base directory.
-// This prevents path traversal attacks (e.g., using ../../ to escape the base directory).
+// isSafePath ensures the file path stays within the allowed base directory.
 func isSafePath(filePath, baseDir string) bool {
-	absBase, err1 := filepath.Abs(baseDir)
-	absTarget, err2 := filepath.Abs(filePath)
+	base, err1 := filepath.Abs(baseDir)
+	target, err2 := filepath.Abs(filePath)
 	if err1 != nil || err2 != nil {
 		return false
 	}
-	return filepath.Dir(absTarget) == absBase
+	if !strings.HasSuffix(base, string(os.PathSeparator)) {
+		base += string(os.PathSeparator)
+	}
+	return strings.HasPrefix(target, base)
 }
