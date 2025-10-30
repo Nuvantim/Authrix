@@ -43,7 +43,7 @@ func InitRedis() {
 
 		// Test Connection
 		if err := rdb.Ping(ctx).Err(); err != nil {
-			log.Println("Failed connecting to redis:", err)
+			log.Fatalf("Failed connecting to redis:", err)
 			return
 		}
 		fmt.Println("Redis connected...")
