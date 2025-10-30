@@ -58,8 +58,8 @@ SELECT id,name FROM permission WHERE id IN (SELECT id_permission FROM role_permi
 `
 
 type GetPermissionRoleRow struct {
-	ID   int32  `json:"id"`
-	Name string `json:"name"`
+	ID   int32  `json:"id" validate:"required"`
+	Name string `json:"name" validate:"required"`
 }
 
 func (q *Queries) GetPermissionRole(ctx context.Context, idRole int32) ([]GetPermissionRoleRow, error) {
@@ -120,8 +120,8 @@ ORDER BY
 
 type ListPermissionRoleRow struct {
 	RoleName       interface{} `json:"role_name"`
-	PermissionName string      `json:"permission_name"`
-	PermissionID   int32       `json:"permission_id"`
+	PermissionName string      `json:"permission_name" validate:"required"`
+	PermissionID   int32       `json:"permission_id" validate:"required"`
 }
 
 func (q *Queries) ListPermissionRole(ctx context.Context, dollar_1 []int32) ([]ListPermissionRoleRow, error) {

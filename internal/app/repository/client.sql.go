@@ -102,9 +102,9 @@ SELECT id,name,email FROM user_account WHERE id = $1
 `
 
 type GetClientRow struct {
-	ID    int32  `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	ID    int32  `json:"id" validate:"required"`
+	Name  string `json:"name" validate:"required"`
+	Email string `json:"email" validate:"required"`
 }
 
 func (q *Queries) GetClient(ctx context.Context, id int32) (GetClientRow, error) {
@@ -162,9 +162,9 @@ ORDER BY
 `
 
 type ListClientRow struct {
-	ID    int32       `json:"id"`
-	Name  string      `json:"name"`
-	Email string      `json:"email"`
+	ID    int32       `json:"id" validate:"required"`
+	Name  string      `json:"name" validate:"required"`
+	Email string      `json:"email" validate:"required"`
 	Role  interface{} `json:"role"`
 }
 
@@ -202,8 +202,8 @@ WHERE id = $1
 `
 
 type UpdateClientParams struct {
-	ID      int32  `json:"id"`
-	Name    string `json:"name"`
+	ID      int32  `json:"id" validate:"required"`
+	Name    string `json:"name" validate:"required"`
 	Column3 string `json:"column_3"`
 	Column4 string `json:"column_4"`
 }

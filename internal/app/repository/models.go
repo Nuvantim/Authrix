@@ -11,42 +11,26 @@ import (
 )
 
 type Permission struct {
-	ID        int32     `json:"id"`
-	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
-type Role struct {
-	ID        int32     `json:"id"`
-	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
-type RolePermission struct {
-	IDRole       int32 `json:"id_role"`
-	IDPermission int32 `json:"id_permission"`
+	ID        int32     `json:"id" validate:"required"`
+	Name      string    `json:"name" validate:"required"`
+	CreatedAt time.Time `json:"created_at" validate:"required"`
 }
 
 type UserAccount struct {
-	ID        int32     `json:"id"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	Password  string    `json:"password"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        int32     `json:"id" validate:"required"`
+	Name      string    `json:"name" validate:"required"`
+	Email     string    `json:"email" validate:"required"`
+	Password  string    `json:"password" validate:"required"`
+	CreatedAt time.Time `json:"created_at" validate:"required"`
 }
 
 type UserProfile struct {
-	ID        int32       `json:"id"`
-	UserID    int32       `json:"user_id"`
-	Age       pgtype.Int4 `json:"age"`
-	Phone     pgtype.Int4 `json:"phone"`
-	District  pgtype.Text `json:"district"`
-	City      pgtype.Text `json:"city"`
-	Country   pgtype.Text `json:"country"`
-	CreatedAt time.Time   `json:"created_at"`
-}
-
-type UserRole struct {
-	IDUser int32 `json:"id_user"`
-	IDRole int32 `json:"id_role"`
+	ID        int32       `json:"id" validate:"required"`
+	UserID    int32       `json:"user_id" validate:"required"`
+	Age       pgtype.Int4 `json:"age" validate:"required"`
+	Phone     pgtype.Int4 `json:"phone" validate:"required"`
+	District  pgtype.Text `json:"district" validate:"required"`
+	City      pgtype.Text `json:"city" validate:"required"`
+	Country   pgtype.Text `json:"country" validate:"required"`
+	CreatedAt time.Time   `json:"created_at" validate:"required"`
 }

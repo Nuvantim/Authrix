@@ -2,7 +2,7 @@ package guard
 
 import (
 	db "api/database"
-	repo "api/internal/app/repository"
+	model "api/internal/app/repository"
 
 	"context"
 	"crypto/rsa"
@@ -24,7 +24,7 @@ var (
 type Claims struct {
 	UserID int32                   `json:"user_id"`
 	Email  string                  `json:"email"`
-	Roles  []repo.AllRoleClientRow `json:"roles,omitempty"`
+	Roles  []model.AllRoleClientRow `json:"roles,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -105,7 +105,7 @@ func CheckRSA() {
 }
 
 // CreateToken membuat access token
-func CreateToken(id int32, email string, role []repo.AllRoleClientRow) (string, error) {
+func CreateToken(id int32, email string, role []model.AllRoleClientRow) (string, error) {
 	if PrivateKey == nil {
 		return "", errors.New("private key is nil")
 	}

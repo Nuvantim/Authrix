@@ -28,9 +28,9 @@ RETURNING id
 `
 
 type CreateUserParams struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Name     string `json:"name" validate:"required"`
+	Email    string `json:"email" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (int32, error) {
@@ -54,9 +54,9 @@ SELECT id, email,password FROM user_account WHERE email = $1
 `
 
 type FindEmailRow struct {
-	ID       int32  `json:"id"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	ID       int32  `json:"id" validate:"required"`
+	Email    string `json:"email" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
 
 func (q *Queries) FindEmail(ctx context.Context, email string) (FindEmailRow, error) {
@@ -103,8 +103,8 @@ UPDATE user_account SET password=$2 WHERE email=$1
 `
 
 type ResetPasswordParams struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `json:"email" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
 
 func (q *Queries) ResetPassword(ctx context.Context, arg ResetPasswordParams) error {
@@ -121,13 +121,13 @@ WHERE user_id = $1
 `
 
 type UpdateAccountParams struct {
-	UserID   int32       `json:"user_id"`
-	Name     string      `json:"name"`
-	Age      pgtype.Int4 `json:"age"`
-	Phone    pgtype.Int4 `json:"phone"`
-	District pgtype.Text `json:"district"`
-	City     pgtype.Text `json:"city"`
-	Country  pgtype.Text `json:"country"`
+	UserID   int32       `json:"user_id" validate:"required"`
+	Name     string      `json:"name" validate:"required"`
+	Age      pgtype.Int4 `json:"age" validate:"required"`
+	Phone    pgtype.Int4 `json:"phone" validate:"required"`
+	District pgtype.Text `json:"district" validate:"required"`
+	City     pgtype.Text `json:"city" validate:"required"`
+	Country  pgtype.Text `json:"country" validate:"required"`
 }
 
 func (q *Queries) UpdateAccount(ctx context.Context, arg UpdateAccountParams) error {
@@ -148,8 +148,8 @@ UPDATE user_account SET password=$2 WHERE id=$1
 `
 
 type UpdatePasswordParams struct {
-	ID       int32  `json:"id"`
-	Password string `json:"password"`
+	ID       int32  `json:"id" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
 
 func (q *Queries) UpdatePassword(ctx context.Context, arg UpdatePasswordParams) error {

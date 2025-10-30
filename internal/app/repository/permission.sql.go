@@ -32,8 +32,8 @@ SELECT id, name FROM permission WHERE id = $1
 `
 
 type GetPermissionRow struct {
-	ID   int32  `json:"id"`
-	Name string `json:"name"`
+	ID   int32  `json:"id" validate:"required"`
+	Name string `json:"name" validate:"required"`
 }
 
 func (q *Queries) GetPermission(ctx context.Context, id int32) (GetPermissionRow, error) {
@@ -72,8 +72,8 @@ UPDATE permission SET name=$2 WHERE id=$1
 `
 
 type UpdatePermissionParams struct {
-	ID   int32  `json:"id"`
-	Name string `json:"name"`
+	ID   int32  `json:"id" validate:"required"`
+	Name string `json:"name" validate:"required"`
 }
 
 func (q *Queries) UpdatePermission(ctx context.Context, arg UpdatePermissionParams) error {

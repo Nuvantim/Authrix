@@ -9,7 +9,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 var rsaKeyPath = "./screet-key"
@@ -22,11 +21,16 @@ func GenRSA() {
 		return
 	}
 
-	privateKeyPath := filepath.Join(rsaKeyPath, "private.pem")
-	publicKeyPath := filepath.Join(rsaKeyPath, "public.pem")
+	privateKeyPath := "private.pem"
+	publicKeyPath := "public.pem"
 
-	_, errPublic := os.Stat(publicKeyPath)
-	_, errPrivate := os.Stat(privateKeyPath)
+	root,err := os.OpenRoot(rsaKeyPath)
+	if err != nil{
+		log.Println("Failed open root :",err)
+	}
+
+	_, errPublic := root.Stat(publicKeyPath)
+	_, errPrivate := root.Stat(privateKeyPath)
 
 	if os.IsNotExist(errPublic) || os.IsNotExist(errPrivate) {
 		fmt.Println("Generating RSA key pair...")
@@ -36,10 +40,10 @@ func GenRSA() {
 			return
 		}
 
-		if err := savePEMKey(privateKeyPath, privateKey); err != nil {
+		if err := savePEMKey(root, privateKeyPath, privateKey); err != nil {
 			log.Println("Failed to save private key:", err)
 		}
-		if err := savePublicPEMKey(publicKeyPath, publicKey); err != nil {
+		if err := savePublicPEMKey(root, publicKeyPath, publicKey); err != nil {
 			log.Println("Failed to save public key:", err)
 		}
 	}
@@ -54,14 +58,9 @@ func generateRSAKeyPair(bits int) (*rsa.PrivateKey, *rsa.PublicKey, error) {
 	return key, &key.PublicKey, nil
 }
 
-// savePEMKey writes a private RSA key to a PEM file.
-func savePEMKey(filename string, key *rsa.PrivateKey) error {
-	if !isSafePath(filename, rsaKeyPath) {
-		return fmt.Errorf("invalid file path: %s", filename)
-	}
-
-	fullpath := filepath.Join(rsaKeyPath, filepath.Base(filename))
-	file, err := os.Create(fullpath)
+// savePEMKey writes a private RSA key to a PEM file safely.
+func savePEMKey(root *os.Root, filename string, key *rsa.PrivateKey) error {
+	file, err := root.Create(filepath.Base(filename)) // 👈 Secure, scoped
 	if err != nil {
 		return err
 	}
@@ -71,14 +70,9 @@ func savePEMKey(filename string, key *rsa.PrivateKey) error {
 	return pem.Encode(file, block)
 }
 
-// savePublicPEMKey writes a public RSA key to a PEM file.
-func savePublicPEMKey(filename string, pub *rsa.PublicKey) error {
-	if !isSafePath(filename, rsaKeyPath) {
-		return fmt.Errorf("invalid file path: %s", filename)
-	}
-
-	fullpath := filepath.Join(rsaKeyPath, filepath.Base(filename))
-	file, err := os.Create(fullpath)
+// savePublicPEMKey writes a public RSA key to a PEM file safely.
+func savePublicPEMKey(root *os.Root, filename string, pub *rsa.PublicKey) error {
+	file, err := root.Create(filepath.Base(filename)) // 👈 Secure, scoped
 	if err != nil {
 		return err
 	}
@@ -90,17 +84,4 @@ func savePublicPEMKey(filename string, pub *rsa.PublicKey) error {
 	}
 	block := &pem.Block{Type: "PUBLIC KEY", Bytes: bytes}
 	return pem.Encode(file, block)
-}
-
-// isSafePath ensures the file path stays within the allowed base directory.
-func isSafePath(filePath, baseDir string) bool {
-	base, err1 := filepath.Abs(baseDir)
-	target, err2 := filepath.Abs(filePath)
-	if err1 != nil || err2 != nil {
-		return false
-	}
-	if !strings.HasSuffix(base, string(os.PathSeparator)) {
-		base += string(os.PathSeparator)
-	}
-	return strings.HasPrefix(target, base)
 }

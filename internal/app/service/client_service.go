@@ -2,7 +2,7 @@ package service
 
 import (
 	db "api/database"
-	repo "api/internal/app/repository"
+	model "api/internal/app/repository"
 	req "api/internal/app/request"
 	"api/pkgs/guards"
 
@@ -10,10 +10,10 @@ import (
 	str "strings"
 )
 
-func ListClient() ([]repo.ListClientRow, error) {
+func ListClient() ([]model.ListClientRow, error) {
 	data, err := db.Queries.ListClient(ctx.Background())
 	if err != nil {
-		return []repo.ListClientRow{}, db.Fatal(err)
+		return []model.ListClientRow{}, db.Fatal(err)
 	}
 	return data, nil
 }
@@ -37,7 +37,7 @@ func GetClient(id int32) (req.GetClient, error) {
 }
 
 func UpdateClient(Id int32, client req.UpdateClient) (req.GetClient, error) {
-	var update_data = repo.UpdateClientParams{
+	var update_data = model.UpdateClientParams{
 		ID:      Id,
 		Name:    client.Name,
 		Column3: client.Email,
@@ -61,7 +61,7 @@ func UpdateClient(Id int32, client req.UpdateClient) (req.GetClient, error) {
 	var check int = len(role)
 	if check != 0 {
 		// update client role
-		var client_role = repo.UpdateRoleClientParams{
+		var client_role = model.UpdateRoleClientParams{
 			IDUser:  Id,
 			Column2: role,
 		}

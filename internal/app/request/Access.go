@@ -1,6 +1,6 @@
 package request
 
-import repo "api/internal/app/repository"
+import model "api/internal/app/repository"
 
 type Permission struct {
 	Name string `validate:"required" json:"name"`
@@ -14,12 +14,12 @@ type Role struct {
 type GetRole struct {
 	ID         int32                       `json:"id"`
 	Name       string                      `json:"name"`
-	Permission []repo.GetPermissionRoleRow `json:"permission"`
+	Permission []model.GetPermissionRoleRow `json:"permission"`
 }
 
 type GetClient struct {
 	ID    int32                   `json:"id"`
 	Name  string                  `json:"name"`
 	Email string                  `json:"email"`
-	Role  []repo.GetRoleClientRow `json:"permission"`
+	Role  []model.GetRoleClientRow `json:"permission"`
 }

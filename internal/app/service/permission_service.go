@@ -2,49 +2,49 @@ package service
 
 import (
 	db "api/database"
-	repo "api/internal/app/repository"
+	model "api/internal/app/repository"
 	req "api/internal/app/request"
 
 	ctx "context"
 	"errors"
 )
 
-func GetPermission(id int32) (repo.GetPermissionRow, error) {
+func GetPermission(id int32) (model.GetPermissionRow, error) {
 	permission, err := db.Queries.GetPermission(ctx.Background(), id)
 	if err != nil {
-		return repo.GetPermissionRow{}, errors.New("permission not found")
+		return model.GetPermissionRow{}, errors.New("permission not found")
 	}
 	return permission, nil
 }
-func ListPermission() ([]repo.Permission, error) {
+func ListPermission() ([]model.Permission, error) {
 	permission, err := db.Queries.ListPermission(ctx.Background())
 	if err != nil {
-		return []repo.Permission{}, errors.New("permission is empty")
+		return []model.Permission{}, errors.New("permission is empty")
 	}
 	return permission, nil
 }
-func CreatePermission(data req.Permission) ([]repo.Permission, error) {
+func CreatePermission(data req.Permission) ([]model.Permission, error) {
 	if err := db.Queries.CreatePermission(ctx.Background(), data.Name); err != nil {
-		return []repo.Permission{}, db.Fatal(err)
+		return []model.Permission{}, db.Fatal(err)
 	}
 	var permission, err = ListPermission()
 	if err != nil {
-		return []repo.Permission{}, db.Fatal(err)
+		return []model.Permission{}, db.Fatal(err)
 	}
 	return permission, nil
 }
-func UpdatePermission(data req.Permission, id int32) (repo.GetPermissionRow, error) {
-	var permission_data = repo.UpdatePermissionParams{
+func UpdatePermission(data req.Permission, id int32) (model.GetPermissionRow, error) {
+	var permission_data = model.UpdatePermissionParams{
 		ID:   id,
 		Name: data.Name,
 	}
 
 	if err := db.Queries.UpdatePermission(ctx.Background(), permission_data); err != nil {
-		return repo.GetPermissionRow{}, db.Fatal(err)
+		return model.GetPermissionRow{}, db.Fatal(err)
 	}
 	var permission, err = GetPermission(id)
 	if err != nil {
-		return repo.GetPermissionRow{}, db.Fatal(err)
+		return model.GetPermissionRow{}, db.Fatal(err)
 	}
 	return permission, nil
 }

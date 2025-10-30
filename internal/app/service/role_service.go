@@ -2,7 +2,7 @@ package service
 
 import (
 	db "api/database"
-	repo "api/internal/app/repository"
+	model "api/internal/app/repository"
 	req "api/internal/app/request"
 
 	ctx "context"
@@ -26,53 +26,53 @@ func GetRole(id int32) (req.GetRole, error) {
 	return data, nil
 }
 
-func ListRole() ([]repo.ListRoleRow, error) {
+func ListRole() ([]model.ListRoleRow, error) {
 	role, err := db.Queries.ListRole(ctx.Background())
 	if err != nil {
-		return []repo.ListRoleRow{}, errors.New("role is empty")
+		return []model.ListRoleRow{}, errors.New("role is empty")
 	}
 	return role, nil
 }
 
-func CreateRole(data req.Role) ([]repo.ListRoleRow, error) {
+func CreateRole(data req.Role) ([]model.ListRoleRow, error) {
 	// Create Role
 	role_id, err := db.Queries.CreateRole(ctx.Background(), data.Name)
 	if err != nil {
-		return []repo.ListRoleRow{}, db.Fatal(err)
+		return []model.ListRoleRow{}, db.Fatal(err)
 	}
 
 	// check length data permission_id
 	// VerfyPermission
 	permission_id, err := db.Queries.VerifyPermission(ctx.Background(), data.PermissionID)
 	if err != nil {
-		return []repo.ListRoleRow{}, errors.New("permission not found")
+		return []model.ListRoleRow{}, errors.New("permission not found")
 	}
 	// check length data permission
 	var check int = len(permission_id)
 
 	if check != 0 {
 		// Params data Role_Permission
-		role_permission := repo.AddPermissionRoleParams{
+		role_permission := model.AddPermissionRoleParams{
 			IDRole:  role_id,
 			Column2: permission_id,
 		}
 
 		// Create Role_Permission
 		if err := db.Queries.AddPermissionRole(ctx.Background(), role_permission); err != nil {
-			return []repo.ListRoleRow{}, err
+			return []model.ListRoleRow{}, err
 		}
 	}
 
 	role, err := ListRole()
 	if err != nil {
-		return []repo.ListRoleRow{}, db.Fatal(err)
+		return []model.ListRoleRow{}, db.Fatal(err)
 	}
 	return role, nil
 }
 
 func UpdateRole(data req.Role, id int32) (req.GetRole, error) {
 	// Update Role
-	var role_data = repo.UpdateRoleParams{
+	var role_data = model.UpdateRoleParams{
 		ID:   id,
 		Name: data.Name,
 	}
@@ -91,7 +91,7 @@ func UpdateRole(data req.Role, id int32) (req.GetRole, error) {
 
 	if check > 0 {
 		// UpdatePermissionRole
-		var role_permission = repo.UpdatePermissionRoleParams{
+		var role_permission = model.UpdatePermissionRoleParams{
 			IDRole:  id,
 			Column2: data.PermissionID,
 		}

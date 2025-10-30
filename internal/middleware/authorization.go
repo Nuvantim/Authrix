@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	repo "api/internal/app/repository"
+	model "api/internal/app/repository"
 	"api/pkgs/utils/responses"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,7 +10,7 @@ import (
 func Role(requiredRole string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Get claims from the context that has been created by jwt
-		claims := c.Locals("roles").([]repo.AllRoleClientRow)
+		claims := c.Locals("roles").([]model.AllRoleClientRow)
 
 		// Check Wheter the user has the required role
 		hasRole := false
@@ -32,7 +32,7 @@ func Role(requiredRole string) fiber.Handler {
 func Permission(requiredPermission string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Get claims from the context that has been created by jwt
-		claims := c.Locals("roles").([]repo.AllRoleClientRow)
+		claims := c.Locals("roles").([]model.AllRoleClientRow)
 
 		// Check Wheter the user has the necessary permissions
 		hasPermission := false
