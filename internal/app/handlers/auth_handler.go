@@ -17,7 +17,7 @@ func SendOTP(c *fiber.Ctx) error {
 
 	// validate data
 	if err := validate.BodyStructs(otp); err != nil {
-		return c.Status(400).JSON(response.Error("validation data", err.Error()))
+		return c.Status(422).JSON(response.Error("validation data", err.Error()))
 	}
 
 	send, err := service.SendOTP(otp.Email)
@@ -36,7 +36,7 @@ func Register(c *fiber.Ctx) error {
 
 	// validate data
 	if err := validate.BodyStructs(regist); err != nil {
-		return c.Status(400).JSON(response.Error("validation data", err.Error()))
+		return c.Status(422).JSON(response.Error("validation data", err.Error()))
 	}
 
 	user_regist, err := service.Register(regist)
@@ -53,7 +53,7 @@ func Login(c *fiber.Ctx) error {
 	}
 	// validate data
 	if err := validate.BodyStructs(login); err != nil {
-		return c.Status(400).JSON(response.Error("validation data", err.Error()))
+		return c.Status(422).JSON(response.Error("validation data", err.Error()))
 	}
 
 	access, refresh, err := service.Login(login)
@@ -82,7 +82,7 @@ func ResetPassword(c *fiber.Ctx) error {
 	}
 	// validate data
 	if err := validate.BodyStructs(pass); err != nil {
-		return c.Status(400).JSON(response.Error("validation data", err.Error()))
+		return c.Status(422).JSON(response.Error("validation data", err.Error()))
 	}
 
 	update_password, err := service.ResetPassword(pass)

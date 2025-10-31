@@ -33,7 +33,7 @@ func UpdateAccount(c *fiber.Ctx) error {
 
 	// validate data
 	if err := validate.BodyStructs(user); err != nil {
-		return c.Status(400).JSON(response.Error("validation data", err.Error()))
+		return c.Status(422).JSON(response.Error("validation data", err.Error()))
 	}
 
 	userUpdate, err := service.UpdateAccount(user, id)

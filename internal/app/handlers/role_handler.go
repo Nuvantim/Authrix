@@ -16,7 +16,7 @@ func CreateRole(c *fiber.Ctx) error {
 
 	// validate data
 	if err := validate.BodyStructs(data); err != nil {
-		return c.Status(400).JSON(response.Error("validation data", err.Error()))
+		return c.Status(422).JSON(response.Error("validation data", err.Error()))
 	}
 
 	role, err := service.CreateRole(data)
@@ -67,7 +67,7 @@ func UpdateRole(c *fiber.Ctx) error {
 	}
 	// validate data
 	if err := validate.BodyStructs(data); err != nil {
-		return c.Status(400).JSON(response.Error("validation data", err.Error()))
+		return c.Status(422).JSON(response.Error("validation data", err.Error()))
 	}
 
 	role, err := service.UpdateRole(data, id)

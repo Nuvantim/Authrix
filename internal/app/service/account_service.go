@@ -2,7 +2,7 @@ package service
 
 import (
 	db "api/database"
-	model "api/internal/app/repository"
+	repo "api/internal/app/repository"
 	req "api/internal/app/request"
 	"api/pkgs/guards"
 
@@ -11,10 +11,10 @@ import (
 	str "strings"
 )
 
-func GetProfile(userID int32) (model.GetProfileRow, error) {
+func GetProfile(userID int32) (repo.GetProfileRow, error) {
 	data, err := db.Queries.GetProfile(ctx.Background(), userID)
 	if err != nil {
-		return model.GetProfileRow{}, errors.New("account not found")
+		return repo.GetProfileRow{}, errors.New("account not found")
 	}
 	data.UserAccount.ID = 0
 	data.UserProfile.UserID = 0
@@ -22,9 +22,9 @@ func GetProfile(userID int32) (model.GetProfileRow, error) {
 	return data, nil
 }
 
-func UpdateAccount(user req.UpdateAccount, userIDs int32) (model.GetProfileRow, error) {
+func UpdateAccount(user req.UpdateAccount, userIDs int32) (repo.GetProfileRow, error) {
 	// Define update profile
-	var updateAccount = model.UpdateAccountParams{
+	var updateAccount = repo.UpdateAccountParams{
 		UserID:   userIDs,
 		Name:     user.Name,
 		Age:      user.Age,
@@ -42,7 +42,7 @@ func UpdateAccount(user req.UpdateAccount, userIDs int32) (model.GetProfileRow, 
 		// Update password is available
 		if str.TrimSpace(user.Password) != "" {
 			psw := guard.HashBycrypt(user.Password)
-			passUpdate := model.UpdatePasswordParams{
+			passUpdate := repo.UpdatePasswordParams{
 				ID:       userIDs,
 				Password: string(psw),
 			}
@@ -62,13 +62,13 @@ func UpdateAccount(user req.UpdateAccount, userIDs int32) (model.GetProfileRow, 
 
 	// Wait for the result from the goroutine
 	if err := <-errChan; err != nil {
-		return model.GetProfileRow{}, db.Fatal(err)
+		return repo.GetProfileRow{}, db.Fatal(err)
 	}
 
 	// Returning data
 	usr, err := GetProfile(userIDs)
 	if err != nil {
-		return model.GetProfileRow{}, db.Fatal(err)
+		return repo.GetProfileRow{}, db.Fatal(err)
 	}
 	return usr, nil
 }

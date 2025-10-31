@@ -1,6 +1,7 @@
 package handler
 
 import (
+	model "api/internal/app/repository"
 	"api/internal/app/request"
 	"api/internal/app/service"
 	"api/pkgs/utils/responses"
@@ -44,7 +45,7 @@ func CreatePermission(c *fiber.Ctx) error {
 	}
 	// validate data
 	if err := validate.BodyStructs(data); err != nil {
-		return c.Status(400).JSON(response.Error("validation data", err.Error()))
+		return c.Status(422).JSON(response.Error("validation data", err.Error()))
 	}
 
 	permission, err := service.CreatePermission(data)
@@ -56,7 +57,7 @@ func CreatePermission(c *fiber.Ctx) error {
 }
 
 func UpdatePermission(c *fiber.Ctx) error {
-	var data request.Permission
+	var data model.UpdatePermissionParams
 	// Get id
 	params, err := c.ParamsInt("id")
 	if err != nil {
@@ -71,12 +72,14 @@ func UpdatePermission(c *fiber.Ctx) error {
 	if err := c.BodyParser(&data); err != nil {
 		return c.Status(400).JSON(response.Error("parser json", err.Error()))
 	}
+	data.ID = id
+
 	// validation data
 	if err := validate.BodyStructs(data); err != nil {
-		return c.Status(400).JSON(response.Error("validation data", err.Error()))
+		return c.Status(422).JSON(response.Error("validation data", err.Error()))
 	}
 
-	permission, err := service.UpdatePermission(data, id)
+	permission, err := service.UpdatePermission(data)
 	if err != nil {
 		return c.Status(500).JSON(response.Error("update permission", err.Error()))
 	}

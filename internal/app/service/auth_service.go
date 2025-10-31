@@ -2,7 +2,7 @@ package service
 
 import (
 	db "api/database"
-	model "api/internal/app/repository"
+	repo "api/internal/app/repository"
 	req "api/internal/app/request"
 	"api/pkgs/guards"
 	rds "api/redis"
@@ -57,7 +57,7 @@ func Register(regist req.Register) (string, error) {
 
 	var pass = guard.HashBycrypt(regist.Password) // Hashing Password
 	// Regist New User
-	createUser := model.CreateUserParams{
+	createUser := repo.CreateUserParams{
 		Name:     regist.Name,
 		Email:    regist.Email,
 		Password: string(pass),
@@ -153,7 +153,7 @@ func ResetPassword(pass req.ResetPassword) (string, error) {
 
 	// UpdatePassword
 	psw := guard.HashBycrypt(pass.Password) //Hashing Password
-	resetPassword := model.ResetPasswordParams{
+	resetPassword := repo.ResetPasswordParams{
 		Email:    email_search.Email,
 		Password: string(psw),
 	}
